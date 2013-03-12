@@ -104,8 +104,6 @@ int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int wid
         }
     }
 
-        // cerr << colour[0] << ", " << colour[1] << ", " << colour[2] << endl;
-
     return status;
 }
 

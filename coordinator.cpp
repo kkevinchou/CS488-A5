@@ -54,8 +54,6 @@ int readPixelData(int workerFd, Image &img) {
     img(x, y, 1) = g;
     img(x, y, 2) = b;
 
-    // cerr << x << ", " << y << endl;
-
     return 0;
 }
 
@@ -104,41 +102,9 @@ void waitForResults(int width, int height, fd_set &master_set, int max_fd, strin
     img.savePng(filename);
 }
 
-// void dispatchWork(int height, vector<int> &workerFds) {
-//     unsigned int numWorkers = workerFds.size();
-//     int nextRow = 0;
-//     int rowsLeft = height;
-//     int rowsPerWorker = max((int)(height / numWorkers), 1);
-
-//     for (unsigned int i = 0; i < numWorkers; i++) {
-//         int workerFd = workerFds[i];
-
-//         sendDouble(workerFd, nextRow);
-
-//         if (rowsPerWorker * 2 <= rowsLeft) {
-//             sendDouble(workerFd, rowsPerWorker);
-//             rowsLeft -= rowsPerWorker;
-//             nextRow += rowsPerWorker;
-//         } else {
-//             sendDouble(workerFd, rowsLeft);
-//             rowsLeft -= rowsLeft;
-//             nextRow += rowsLeft;
-//             break;
-//         }
-//     }
-// }
-
 void dispatchWork(int width, int height, vector<int> &workerFds) {
     unsigned int nextWorker = 0;
     int numWorkers = (int)workerFds.size();
-
-    // for (int i = 0; i < width; i++) {
-    //     for (int j = 0; j < height; j++) {
-    //         sendDouble(workerFds[nextWorker], (double)i);
-    //         sendDouble(workerFds[nextWorker], (double)j);
-    //         nextWorker = (nextWorker + 1) % numWorkers;
-    //     }
-    // }
 
     for (unsigned int i = 0; i < numWorkers; i++) {
         sendDouble(workerFds[i], (double)i);
@@ -146,22 +112,17 @@ void dispatchWork(int width, int height, vector<int> &workerFds) {
         sendDouble(workerFds[i], (double)height);
         sendDouble(workerFds[i], (double)numWorkers);
     }
-
-    cerr << "DONE SENDING" << endl;
 }
 
 void go(int width, int height, string filename) {
-    double i1 = 8;
-    double i2 = 3;
-    int i = i1 /i2;
-    cerr << "INT TEST " << i << endl;
-    vector<string> workerHosts = getWorkerHosts();
 
     int max_fd = 0;
     fd_set master_set;
     FD_ZERO(&master_set);
 
     vector<int> workerFds;
+    vector<string> workerHosts = getWorkerHosts();
+
     for (unsigned int i = 0; i < workerHosts.size(); i++) {
         int workerFd = setupSocketAndReturnDescriptor(workerHosts[i].c_str(), port);
         if (workerFd < 0) {
