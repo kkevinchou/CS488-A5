@@ -31,11 +31,10 @@ void a4_render(// What to render
     worker.setDimensions(width, height);
 
     if (runType == "WORKER") {
-        cerr << "WORKER START" << endl;
         worker.wait();
-        cerr << "WORKER END" << endl;
     } else if (runType == "COORDINATOR") {
-        dispatchWorkers(width, height, filename);
+        Coordinator c(width, height, filename);
+        c.dispatchWorkers();
     } else {
         Image img(width, height, 3);
 

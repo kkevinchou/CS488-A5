@@ -10,10 +10,22 @@
 
 using namespace std;
 
-vector<string> getWorkerHosts();
-void dispatchWorkers(int width, int height, string filename);
-void waitForResults(int width, int height, fd_set &master_set, int max_fd, string filename);
-int readPixelData(int workerFd, Image &img);
-void distributeWork(int width, int height, vector<int> &workerFds);
+class Coordinator {
+public:
+    Coordinator(int width, int height, string filename);
+    void dispatchWorkers();
+private:
+    int width;
+    int height;
+    string filename;
+    Image img;
+
+    vector<string> getWorkerHosts();
+    void distributeWork(vector<int> &workerFds);
+    int readPixelData(int workerFd);
+    void waitForResults(fd_set &master_set, int max_fd);
+};
+
+
 
 #endif

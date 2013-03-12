@@ -97,8 +97,6 @@ void Worker::wait() {
             }
         }
     }
-
-    close(coordSocketFd);
 }
 
 void Worker::accept() {

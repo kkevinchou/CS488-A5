@@ -22,7 +22,7 @@ public:
                const Colour& ambient,
                const list<Light*>& lights);
 
-     vector<double> render(int x, int y);
+     vector<double> render(int x, int y, bool superSampling = false, int sampleDimension = 2);
 private:
      SceneNode* root;
      // Where to output the image

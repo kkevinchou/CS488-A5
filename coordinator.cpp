@@ -8,12 +8,16 @@
 
 extern unsigned short port;
 
-vector<string> getWorkerHosts() {
+Coordinator::Coordinator(int width, int height, string filename) : width(width), height(height), filename(filename) {
+    img = Image(width, height, 3);
+}
+
+vector<string> Coordinator::getWorkerHosts() {
     vector<string> hosts;
     hosts.push_back("gl12");
     hosts.push_back("gl13");
     hosts.push_back("gl14");
-    hosts.push_back("gl19");
+    // hosts.push_back("gl19"); unlimit does not exist
     hosts.push_back("gl23");
     hosts.push_back("gl24");
     hosts.push_back("gl25");
@@ -23,7 +27,7 @@ vector<string> getWorkerHosts() {
     return hosts;
 }
 
-int readPixelData(int workerFd, Image &img) {
+int Coordinator::readPixelData(int workerFd) {
     double dx, dy;
     int status;
 
@@ -60,8 +64,7 @@ int readPixelData(int workerFd, Image &img) {
     return 0;
 }
 
-void waitForResults(int width, int height, fd_set &master_set, int max_fd, string filename) {
-    Image img(width, height, 3);
+void Coordinator::waitForResults(fd_set &master_set, int max_fd) {
     int numPixels = width * height;
     int finishedPixels = 0;
 
@@ -80,7 +83,7 @@ void waitForResults(int width, int height, fd_set &master_set, int max_fd, strin
             if (FD_ISSET(i, &working_set)) {
                 int workerFd = i;
 
-                int readResult = readPixelData(workerFd, img);
+                int readResult = readPixelData(workerFd);
                 if (readResult < 0) {
                     FD_CLR(workerFd, &master_set);
                     close(workerFd);
@@ -106,7 +109,7 @@ void waitForResults(int width, int height, fd_set &master_set, int max_fd, strin
     img.savePng(filename);
 }
 
-void distributeWork(int width, int height, vector<int> &workerFds) {
+void Coordinator::distributeWork(vector<int> &workerFds) {
     unsigned int nextWorker = 0;
     int numWorkers = (int)workerFds.size();
 
@@ -118,8 +121,7 @@ void distributeWork(int width, int height, vector<int> &workerFds) {
     }
 }
 
-void dispatchWorkers(int width, int height, string filename) {
-
+void Coordinator::dispatchWorkers() {
     int max_fd = 0;
     fd_set master_set;
     FD_ZERO(&master_set);
@@ -143,6 +145,6 @@ void dispatchWorkers(int width, int height, string filename) {
         return;
     }
 
-    distributeWork(width, height, workerFds);
-    waitForResults(width, height, master_set, max_fd, filename);
+    distributeWork(workerFds);
+    waitForResults(master_set, max_fd);
 }

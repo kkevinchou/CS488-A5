@@ -10,6 +10,7 @@ require('readobj')
 stone = gr.material({0.8, 0.7, 0.7}, {0.0, 0.0, 0.0}, 0)
 grass = gr.material({0.1, 0.7, 0.1}, {0.0, 0.0, 0.0}, 0)
 hide = gr.material({0.84, 0.6, 0.53}, {0.3, 0.3, 0.3}, 20)
+wood = gr.material({0.66, 0.27, 0.05}, {0.0, 0.0, 0.0}, 0)
 
 -- ##############################################
 -- the arch
@@ -74,16 +75,6 @@ scene:add_child(plane)
 plane:set_material(grass)
 plane:scale(30, 30, 30)
 
--- Construct a central altar in the shape of a buckyball.  The
--- buckyball at the centre of the real Stonehenge was destroyed
--- in the great fire of 733 AD.
-
-require('buckyball')
-
-scene:add_child(buckyball)
-buckyball:set_material(stone)
-buckyball:scale(1.5, 1.5, 1.5)
-
 -- Use the instanced cow model to place some actual cows in the scene.
 -- For convenience, do this in a loop.
 
@@ -93,13 +84,13 @@ for _, pt in pairs({
               {{-8,1.3,0}, 225},
               {{-4,1.3,0}, 225},
               {{0,1.3,0}, 225},
-              {{-8,1.3,1}, 225},
-              {{-4,1.3,1}, 225},
-              {{0,1.3,1}, 225},
-              {{-8,1.3,2}, 225},
-              {{-4,1.3,2}, 225},
-              {{0,1.3,2}, 225},
-              {{-5.5,1.3,-3}, -60}}) do
+              {{-8,1.3,4}, 225},
+              {{-4,1.3,4}, 225},
+              {{0,1.3,4}, 225},
+              {{-8,1.3,8}, 225},
+              {{-4,1.3,8}, 225},
+              {{0,1.3,8}, 225},
+              }) do
    cow_instance = gr.node('cow' .. tostring(cow_number))
    scene:add_child(cow_instance)
    cow_instance:add_child(cow_poly)
@@ -110,16 +101,29 @@ for _, pt in pairs({
    cow_number = cow_number + 1
 end
 
+fence = gr.mesh('fence', {
+           { 0, 0, 0 },
+           { 1, 0, 0 },
+           { 1, 1, 0 },
+           { 0, 1, 0 }
+        }, {
+           {0, 1, 2, 3}
+        })
+scene:add_child(fence)
+fence:set_material(wood)
+fence:translate(0, 1.3, 10)
+fence:scale(20, 1, 1)
+
 -- Place a ring of arches.
 
-for i = 1, 6 do
-   an_arc = gr.node('arc' .. tostring(i))
-   an_arc:rotate('Y', (i-1) * 60)
-   scene:add_child(an_arc)
-   an_arc:add_child(arc)
-end
+-- for i = 1, 6 do
+--    an_arc = gr.node('arc' .. tostring(i))
+--    an_arc:rotate('Y', (i-1) * 60)
+--    scene:add_child(an_arc)
+--    an_arc:add_child(arc)
+-- end
 
 gr.render(scene,
-      'macho_cows.png', 256, 256,
+      'macho_cows.png', 500, 500,
       {0, 2, 30}, {0, 0, -1}, {0, 1, 0}, 50,
       {0.4, 0.4, 0.4}, {gr.light({200, 202, 430}, {0.8, 0.8, 0.8}, {1, 0, 0})})

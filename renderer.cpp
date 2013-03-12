@@ -28,10 +28,7 @@ rayCaster(eye, bg, root, lights, ambient) {
     m_side = view.cross(up);
 }
 
-vector<double> Renderer::render(int x, int y) {
-    bool superSampling = true;
-    double sampleDimension = 2.0;
-
+vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDimension) {
     Vector3D dir;
     Colour c(0);
 
@@ -47,12 +44,12 @@ vector<double> Renderer::render(int x, int y) {
 
         c = (cr.hit) ? cr.finalColour : bg.getPixelColour(x, y);
     } else {
-        for (int i = -sampleDimension/2; i < sampleDimension/2; i++) {
-            for (int j = -sampleDimension/2; j < sampleDimension/2; j++) {
-                dir = ( (x + i/sampleDimension) / ((double)width) * 2 - 1 ) *
+        for (int i = -(double)sampleDimension/2; i < (double)sampleDimension/2; i++) {
+            for (int j = -(double)sampleDimension/2; j < (double)sampleDimension/2; j++) {
+                dir = ( (x + i/(double)sampleDimension) / ((double)width) * 2 - 1 ) *
                     tan( fov * M_PI / 360.0 ) *
                     ( (double)width / (double)height ) *
-                    m_side + ( (y + j/sampleDimension) / (double)height * 2 - 1 ) *
+                    m_side + ( (y + j/(double)sampleDimension) / (double)height * 2 - 1 ) *
                     tan( fov * M_PI / 360.0 ) *
                     -m_up + m_view;
                 dir.normalize();
@@ -62,7 +59,7 @@ vector<double> Renderer::render(int x, int y) {
             }
         }
 
-        c = (1.0 / (sampleDimension * sampleDimension)) * c;
+        c = (1.0 / ((double)sampleDimension * (double)sampleDimension)) * c;
     }
 
     vector<double> results;
