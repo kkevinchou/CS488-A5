@@ -7,10 +7,7 @@
 #include "renderer.hpp"
 #include "coordinator.hpp"
 
-bool debug = false;
-bool printProgress = true;
-
-extern unsigned short port;
+extern Worker worker;
 
 void a4_render(// What to render
                SceneNode* root,
@@ -27,18 +24,22 @@ void a4_render(// What to render
                )
 {
     char * run_type = getenv ("RUN_TYPE");
+    string runType(run_type);
 
     Renderer r(root, filename, width, height, eye, view, up, fov, ambient, lights);
+    worker.setRenderer(&r);
+    worker.setDimensions(width, height);
 
-    if (string(run_type) == "WORKER") {
+    if (runType == "WORKER") {
         cerr << "WORKER START" << endl;
-        wait(r, width, height);
+        worker.wait();
         cerr << "WORKER END" << endl;
-    } else if (string(run_type) == "COORDINATOR") {
-        go(width, height, filename);
+    } else if (runType == "COORDINATOR") {
+        dispatchWorkers(width, height, filename);
     } else {
         Image img(width, height, 3);
 
+        bool printProgress = true;
         int percentage = 0;
         clock_t t = clock();
 

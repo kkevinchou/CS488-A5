@@ -23,7 +23,24 @@
 
 using namespace std;
 
-int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int width, int height);
-int wait(Renderer &r, int width, int height);
+class Worker {
+public:
+    Worker();
+    void setRenderer(Renderer *r);
+    void setDimensions(int width, int height);
+    void wait();
+    void accept();
+
+private:
+    Renderer *r;
+    int width;
+    int height;
+    bool firstRun;
+
+    int localSocketFd;
+    int coordSocketFd;
+
+    int handleRequest(queue<double> &inData);
+};
 
 #endif

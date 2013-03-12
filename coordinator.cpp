@@ -1,8 +1,6 @@
 #include "coordinator.hpp"
 
 #include "a4.hpp"
-#include "background.hpp"
-#include "collider.hpp"
 #include "worker.hpp"
 #include "dist.hpp"
 #include "renderer.hpp"
@@ -108,7 +106,7 @@ void waitForResults(int width, int height, fd_set &master_set, int max_fd, strin
     img.savePng(filename);
 }
 
-void dispatchWork(int width, int height, vector<int> &workerFds) {
+void distributeWork(int width, int height, vector<int> &workerFds) {
     unsigned int nextWorker = 0;
     int numWorkers = (int)workerFds.size();
 
@@ -120,7 +118,7 @@ void dispatchWork(int width, int height, vector<int> &workerFds) {
     }
 }
 
-void go(int width, int height, string filename) {
+void dispatchWorkers(int width, int height, string filename) {
 
     int max_fd = 0;
     fd_set master_set;
@@ -145,6 +143,6 @@ void go(int width, int height, string filename) {
         return;
     }
 
-    dispatchWork(width, height, workerFds);
+    distributeWork(width, height, workerFds);
     waitForResults(width, height, master_set, max_fd, filename);
 }
