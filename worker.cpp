@@ -3,43 +3,6 @@
 
 unsigned short port = 6013;
 
-// int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int width, int height) {
-//     double d;
-//     int status = readDouble(coordinatorFd, d);
-
-//     if (status == 0) {
-//         inData.push(d);
-//     }
-
-//     if (inData.size() >= 2) {
-//         int y = (int)inData.front();
-//         inData.pop();
-//         int numRows = (int)inData.front();
-//         inData.pop();
-
-//         cerr << "Y " << y << ", NUM ROWS " << numRows << endl;
-
-//         for (int j = y; j < y + numRows; j++) {
-//             for (int i = 0; i < width; i++) {
-//                 vector<double> colour = r.render(i, j);
-
-//                 sendDouble(coordinatorFd, i);
-//                 sendDouble(coordinatorFd, j);
-//                 for (unsigned int k = 0; k < colour.size(); k++) {
-//                     int status = sendDouble(coordinatorFd, colour[k]);
-//                     if (status < 0) {
-//                         return status;
-//                     }
-//                 }
-//             }
-//         }
-
-//         cerr << "SENT RESULT" << endl;
-//     }
-
-//     return status;
-// }
-
 int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int width, int height) {
     double d;
     bool printProgress = true;
@@ -109,11 +72,16 @@ int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int wid
     return status;
 }
 
-int wait(Renderer &r, int width, int height) {
-    int localSocketFd = socket(AF_INET, SOCK_STREAM, 0);
+bool main_first_run = true;
+int localSocketFd;
 
-    listenOnSocket(localSocketFd, port);
-    printServerSettings(localSocketFd);
+int wait(Renderer &r, int width, int height) {
+    if (main_first_run) {
+        main_first_run = false;
+        localSocketFd = socket(AF_INET, SOCK_STREAM, 0);
+        listenOnSocket(localSocketFd, port);
+        printServerSettings(localSocketFd);
+    }
 
     int max_fd = localSocketFd;
     fd_set master_set, working_set;
@@ -135,7 +103,6 @@ int wait(Renderer &r, int width, int height) {
                     int coordinatorFd = i;
                     int handleResult = handleRequest(coordinatorFd, r, inData, width, height);
                     if (handleResult == 1) {
-                        cerr << "COMPUTATION DONE" << endl;
                         computationDone = true;
                     }
                     if (handleResult < 0) {
@@ -151,10 +118,8 @@ int wait(Renderer &r, int width, int height) {
         }
     }
 
-    cerr << "DONE" << endl;
-
     close(coordSocketFd);
-    close(localSocketFd);
+    // close(localSocketFd);
 
     return 0;
 }

@@ -78,11 +78,11 @@ plane:scale(30, 30, 30)
 -- buckyball at the centre of the real Stonehenge was destroyed
 -- in the great fire of 733 AD.
 
--- require('buckyball')
+require('buckyball')
 
--- scene:add_child(buckyball)
--- buckyball:set_material(stone)
--- buckyball:scale(1.5, 1.5, 1.5)
+scene:add_child(buckyball)
+buckyball:set_material(stone)
+buckyball:scale(1.5, 1.5, 1.5)
 
 -- Use the instanced cow model to place some actual cows in the scene.
 -- For convenience, do this in a loop.
@@ -112,12 +112,12 @@ end
 
 -- Place a ring of arches.
 
--- for i = 1, 6 do
---    an_arc = gr.node('arc' .. tostring(i))
---    an_arc:rotate('Y', (i-1) * 60)
---    scene:add_child(an_arc)
---    an_arc:add_child(arc)
--- end
+for i = 1, 6 do
+   an_arc = gr.node('arc' .. tostring(i))
+   an_arc:rotate('Y', (i-1) * 60)
+   scene:add_child(an_arc)
+   an_arc:add_child(arc)
+end
 
 gr.render(scene,
       'macho_cows.png', 256, 256,
