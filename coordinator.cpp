@@ -6,11 +6,16 @@
 #include "worker.hpp"
 #include "dist.hpp"
 #include "renderer.hpp"
+#include <ctime>
 
 extern unsigned short port;
 
 vector<string> getWorkerHosts() {
     vector<string> hosts;
+    hosts.push_back("gl12");
+    hosts.push_back("gl13");
+    hosts.push_back("gl14");
+    hosts.push_back("gl19");
     hosts.push_back("gl23");
     hosts.push_back("gl24");
     hosts.push_back("gl25");
@@ -64,7 +69,8 @@ void waitForResults(int width, int height, fd_set &master_set, int max_fd, strin
 
     bool printProgress = true;
     int percentage = 0;
-    clock_t t = clock();
+
+    time_t timer = time(0);
 
     fd_set working_set;
 
@@ -97,8 +103,8 @@ void waitForResults(int width, int height, fd_set &master_set, int max_fd, strin
         }
     }
 
-    t = clock() - t;
-    cerr << "Took " << ((float)t)/CLOCKS_PER_SEC << " seconds to complete" << endl;
+    timer = time(0) - timer;
+    cerr << "Completed in " << timer << " seconds." << endl;
     img.savePng(filename);
 }
 
@@ -126,7 +132,7 @@ void go(int width, int height, string filename) {
     for (unsigned int i = 0; i < workerHosts.size(); i++) {
         int workerFd = setupSocketAndReturnDescriptor(workerHosts[i].c_str(), port);
         if (workerFd < 0) {
-            cerr << "Connection Failed for host: " << workerHosts[i] << endl;
+            cerr << "Connection failed for host: " << workerHosts[i] << endl;
             continue;
         }
 

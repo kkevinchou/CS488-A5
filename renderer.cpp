@@ -29,8 +29,8 @@ rayCaster(eye, bg, root, lights, ambient) {
 }
 
 vector<double> Renderer::render(int x, int y) {
-    bool superSampling = false;
-    double sampleDimension = 16.0;
+    bool superSampling = true;
+    double sampleDimension = 2.0;
 
     Vector3D dir;
     Colour c(0);

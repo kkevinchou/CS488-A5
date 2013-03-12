@@ -31,7 +31,9 @@ void a4_render(// What to render
     Renderer r(root, filename, width, height, eye, view, up, fov, ambient, lights);
 
     if (string(run_type) == "WORKER") {
+        cerr << "WORKER START" << endl;
         wait(r, width, height);
+        cerr << "WORKER END" << endl;
     } else if (string(run_type) == "COORDINATOR") {
         go(width, height, filename);
     } else {

@@ -102,6 +102,8 @@ int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int wid
                 }
             }
         }
+
+        return 1;
     }
 
     return status;
@@ -120,7 +122,10 @@ int wait(Renderer &r, int width, int height) {
 
     queue<double> inData;
 
-    while (true) {
+    bool computationDone = false;
+    int coordSocketFd;
+
+    while (!computationDone) {
         memcpy(&working_set, &master_set, sizeof(master_set));
         int selectResult = select(max_fd + 1, &working_set, NULL, NULL, NULL);
 
@@ -129,19 +134,26 @@ int wait(Renderer &r, int width, int height) {
                 if (i != localSocketFd) {
                     int coordinatorFd = i;
                     int handleResult = handleRequest(coordinatorFd, r, inData, width, height);
+                    if (handleResult == 1) {
+                        cerr << "COMPUTATION DONE" << endl;
+                        computationDone = true;
+                    }
                     if (handleResult < 0) {
                         FD_CLR(coordinatorFd, &master_set);
                         close(coordinatorFd);
                     }
                 } else {
-                    int newSocketFd = acceptConnection(localSocketFd);
-                    max_fd = newSocketFd;
-                    FD_SET(newSocketFd, &master_set);
+                    coordSocketFd = acceptConnection(localSocketFd);
+                    max_fd = coordSocketFd;
+                    FD_SET(coordSocketFd, &master_set);
                 }
             }
         }
     }
 
+    cerr << "DONE" << endl;
+
+    close(coordSocketFd);
     close(localSocketFd);
 
     return 0;
