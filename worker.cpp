@@ -3,95 +3,116 @@
 
 unsigned short port = 6013;
 
-void printServerSettings(int localSocketFd) {
-    char localHostName[256];
-    gethostname(localHostName, 256);
-    cout << "SERVER_ADDRESS " << localHostName << endl;
+// int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int width, int height) {
+//     double d;
+//     int status = readDouble(coordinatorFd, d);
 
-    struct sockaddr_in sin;
-    socklen_t len = sizeof(sin);
-    getsockname(localSocketFd, (struct sockaddr *)&sin, &len);
-    cout << "SERVER_PORT " << ntohs(sin.sin_port) << endl;
-}
+//     if (status == 0) {
+//         inData.push(d);
+//     }
 
-int acceptConnection(int localSocketFd) {
-    struct sockaddr_in clientAddress;
-    socklen_t clientAddressSize = sizeof(clientAddress);
-    int newSocketFd = accept(localSocketFd, (struct sockaddr *) &clientAddress, &clientAddressSize);
+//     if (inData.size() >= 2) {
+//         int y = (int)inData.front();
+//         inData.pop();
+//         int numRows = (int)inData.front();
+//         inData.pop();
 
-    return newSocketFd;
-}
+//         cerr << "Y " << y << ", NUM ROWS " << numRows << endl;
 
-void listenOnSocket(int localSocketFd) {
-    struct sockaddr_in serverAddress;
-    memset((struct sockaddr_in *)&serverAddress, 0, sizeof(serverAddress));
+//         for (int j = y; j < y + numRows; j++) {
+//             for (int i = 0; i < width; i++) {
+//                 vector<double> colour = r.render(i, j);
 
-    serverAddress.sin_family = AF_INET;
-    serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(port);
+//                 sendDouble(coordinatorFd, i);
+//                 sendDouble(coordinatorFd, j);
+//                 for (unsigned int k = 0; k < colour.size(); k++) {
+//                     int status = sendDouble(coordinatorFd, colour[k]);
+//                     if (status < 0) {
+//                         return status;
+//                     }
+//                 }
+//             }
+//         }
 
-    bind(localSocketFd, (struct sockaddr *) &serverAddress, sizeof(serverAddress));
+//         cerr << "SENT RESULT" << endl;
+//     }
 
-    listen(localSocketFd, 5);
-}
+//     return status;
+// }
 
-char *readDouble(char *buffer, double &d) {
-    DataTypeConversion converter;
-    for(unsigned int i = 0; i < 8; i++) {
-        converter.charArray[i] = *buffer;
-        buffer++;
+int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int width, int height) {
+    double d;
+    bool printProgress = true;
+    int status = readDouble(coordinatorFd, d);
+
+    if (status == 0) {
+        inData.push(d);
     }
 
-    d = converter.d;
-    return buffer;
-}
+    if (inData.size() >= 4) {
+        int column = (int)inData.front();
+        inData.pop();
+        int width = (int)inData.front();
+        inData.pop();
+        int height = (int)inData.front();
+        inData.pop();
+        int numWorkers = (int)inData.front();
+        inData.pop();
 
-int handleRequest(int clientSocketFd, fd_set *master_set, Renderer &r) {
-    int bufSize = 256;
-    char *buffer = new char[bufSize];
-    char *bufferStart = buffer;
-
-    memset(buffer, 0, bufSize);
-
-    int numDoublesToRead = 3;
-    int totalBytes = numDoublesToRead * 8;
-    int bytesLeftToRead = totalBytes;
-
-    while (bytesLeftToRead > 0) {
-        int bytesRead = recv(clientSocketFd, buffer, bytesLeftToRead, 0);
-
-        if(bytesRead == 0) {
-            cerr << "Connection closed"<<endl;
-            return -1;
-        } else if (bytesRead < 0) {
-            cerr << "ERROR reading from socket"<<endl;
-            return -1;
+        int totalColumns = width / numWorkers;
+        int LeftOverColumns = width % numWorkers;
+        if (column <= LeftOverColumns - 1) {
+            totalColumns++;
         }
 
-        buffer += bytesRead;
-        bytesLeftToRead -= bytesRead;
+        int numPixels = totalColumns * height;
+        int finishedPixels = 0;
+        int percentage = 0;
+
+        for (int i = column; i < width; i += numWorkers) {
+            for (int j = 0; j < height; j++) {
+                vector<double> colour = r.render(i, j);
+
+                status = sendDouble(coordinatorFd, (double)i);
+                if (status < 0) {
+                    return status;
+                }
+                status = sendDouble(coordinatorFd, (double)j);
+                if (status < 0) {
+                    return status;
+                }
+
+                for (unsigned int k = 0; k < colour.size(); k++) {
+                    int status = sendDouble(coordinatorFd, colour[k]);
+                    if (status < 0) {
+                        return status;
+                    }
+                }
+
+                finishedPixels++;
+                if (printProgress) {
+                    int newPercentage = finishedPixels * 100 / numPixels;
+                    if (newPercentage > percentage) {
+                        percentage = newPercentage;
+                        cerr << ". ";
+                        if (percentage % 10 == 0) {
+                            cerr << percentage << "\% done" << endl;
+                        }
+                    }
+                }
+            }
+        }
     }
-    buffer = bufferStart;
 
-    double ds[numDoublesToRead];
-    for (int i = 0; i < numDoublesToRead; i++) {
-        buffer = readDouble(buffer, ds[i]);
-    }
+        // cerr << colour[0] << ", " << colour[1] << ", " << colour[2] << endl;
 
-    // cerr << "==============================================" << endl;
-    // for (int i = 0; i < numDoublesToRead; i++) {
-    //     cerr << ds[i] << endl;
-    // }
-
-    vector<double> results = r.render((int)ds[0], (int)ds[1]);
-
-    return 0;
+    return status;
 }
 
-int wait(Renderer &r) {
+int wait(Renderer &r, int width, int height) {
     int localSocketFd = socket(AF_INET, SOCK_STREAM, 0);
 
-    listenOnSocket(localSocketFd);
+    listenOnSocket(localSocketFd, port);
     printServerSettings(localSocketFd);
 
     int max_fd = localSocketFd;
@@ -99,7 +120,7 @@ int wait(Renderer &r) {
     FD_ZERO(&master_set);
     FD_SET(localSocketFd, &master_set);
 
-    map<int, unsigned int> chunkInfo;
+    queue<double> inData;
 
     while (true) {
         memcpy(&working_set, &master_set, sizeof(master_set));
@@ -108,11 +129,11 @@ int wait(Renderer &r) {
         for (int i = 0; i < max_fd + 1; i++) {
             if (FD_ISSET(i, &working_set)) {
                 if (i != localSocketFd) {
-                    int clientSocketFd = i;
-                    int handleResult = handleRequest(clientSocketFd, &master_set, r);
+                    int coordinatorFd = i;
+                    int handleResult = handleRequest(coordinatorFd, r, inData, width, height);
                     if (handleResult < 0) {
-                        FD_CLR(clientSocketFd, &master_set);
-                        close(clientSocketFd);
+                        FD_CLR(coordinatorFd, &master_set);
+                        close(coordinatorFd);
                     }
                 } else {
                     int newSocketFd = acceptConnection(localSocketFd);

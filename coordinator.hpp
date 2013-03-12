@@ -2,9 +2,16 @@
 #define COORDINATOR_HPP
 
 #include <string>
-#include "worker.hpp"
+#include "algebra.hpp"
+#include "scene.hpp"
+#include "light.hpp"
+#include "raycaster.hpp"
+#include "image.hpp"
 
-int setupSocketAndReturnDescriptor(const char * serverAddressString, int serverPort);
-void sendDouble(int workerFd, double d);
+using namespace std;
+
+vector<string> getWorkerHosts();
+void go(int width, int height, string filename);
+int readPixelData(int workerFd, Image &img);
 
 #endif

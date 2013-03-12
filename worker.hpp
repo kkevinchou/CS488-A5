@@ -16,29 +16,14 @@
 #include <sstream>
 #include <map>
 #include <vector>
-
-class Renderer;
+#include "constants.hpp"
+#include "dist.hpp"
+#include <queue>
+#include "renderer.hpp"
 
 using namespace std;
 
-union DataTypeConversion {
-    unsigned int ui;
-    int i;
-    double d;
-    float f;
-    long l;
-    short s;
-    unsigned short us;
-    char charArray[8];
-};
-
-typedef vector<double> (*rt_callback)(int, int);
-
-void printServerSettings(int localSocketFd);
-int acceptConnection(int localSocketFd);
-void listenOnSocket(int localSocketFd);
-double readDouble(int clientSocketFd);
-int handleRequest(int clientSocketFd, fd_set *master_set, Renderer &r);
-int wait(Renderer &r);
+int handleRequest(int coordinatorFd, Renderer &r, queue<double> &inData, int width, int height);
+int wait(Renderer &r, int width, int height);
 
 #endif
