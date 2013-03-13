@@ -20,14 +20,33 @@
 #include "dist.hpp"
 #include <queue>
 #include "renderer.hpp"
+#include "workpool.hpp"
 
 using namespace std;
+
+struct worker_thread_args {
+    pthread_mutex_t *sendLock;
+    WorkPool *workPool;
+    Renderer *renderer;
+    int height;
+    int coordSocketFd;
+};
 
 class Worker {
 public:
     Worker();
-    void setRenderer(Renderer *r);
-    void setDimensions(int width, int height);
+    void setParams(// What to render
+               SceneNode* root,
+               // Where to output the image
+               const std::string& filename,
+               // Image size
+               int width, int height,
+               // Viewing parameters
+               const Point3D& eye, const Vector3D& view,
+               const Vector3D& up, double fov,
+               // Lighting parameters
+               const Colour& ambient,
+               const list<Light*>& lights);
     void wait();
     void accept();
 

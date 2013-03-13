@@ -28,7 +28,7 @@ rayCaster(eye, bg, root, lights, ambient) {
     m_side = view.cross(up);
 }
 
-vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDimension) {
+vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDimension) const {
     Vector3D dir;
     Colour c(0);
 

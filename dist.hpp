@@ -12,6 +12,7 @@ void listenOnSocket(int localSocketFd, unsigned short port);
 
 int setupSocketAndReturnDescriptor(const char * serverAddressString, int serverPort);
 int sendDouble(int workerFd, double d);
+int sendDoubleMutexed(int workerFd, double d, pthread_mutex_t *m);
 int readDouble(int connectionFd, double &d);
 
 #endif

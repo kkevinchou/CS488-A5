@@ -102,6 +102,32 @@ int sendDouble(int workerFd, double d) {
     return 0;
 }
 
+int sendDoubleMutexed(int workerFd, double d, pthread_mutex_t *m) {
+    DataTypeConversion converter;
+    converter.d = d;
+
+    char *bytes = converter.charArray;
+    unsigned int bytesLeftToSend = 8;
+
+    while (bytesLeftToSend > 0) {
+        pthread_mutex_lock(m);
+        int bytesSent = send(workerFd, bytes, bytesLeftToSend, 0);
+        pthread_mutex_unlock(m);
+
+        if (bytesSent == 0) {
+            cerr << "SECOND COMPLETE OR WORKER TERMINATED?" << endl;
+            return -1;
+        } else if (bytesSent < 0) {
+            cerr << "SEND ERROR" << endl;
+            return -1;
+        }
+
+        bytesLeftToSend -= bytesSent;
+        bytes += bytesSent;
+    }
+    return 0;
+}
+
 double readDoubleFromBuffer(char *buffer) {
     DataTypeConversion converter;
     for(unsigned int i = 0; i < 8; i++) {

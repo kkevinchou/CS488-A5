@@ -26,17 +26,15 @@ void a4_render(// What to render
     char * run_type = getenv ("RUN_TYPE");
     string runType(run_type);
 
-    Renderer r(root, filename, width, height, eye, view, up, fov, ambient, lights);
-    worker.setRenderer(&r);
-    worker.setDimensions(width, height);
-
     if (runType == "WORKER") {
+        worker.setParams(root, filename, width, height, eye, view, up, fov, ambient, lights);
         worker.wait();
     } else if (runType == "COORDINATOR") {
         Coordinator c(width, height, filename);
         c.dispatchWorkers();
     } else {
         Image img(width, height, 3);
+        Renderer r(root, filename, width, height, eye, view, up, fov, ambient, lights);
 
         bool printProgress = true;
         int percentage = 0;
