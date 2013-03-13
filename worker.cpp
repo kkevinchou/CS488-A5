@@ -22,7 +22,7 @@ static void *testMethod(void *args) {
         }
 
         for (y = 0; y < height; y++) {
-            vector<double> colour = r->render(x, y);
+            vector<double> colour = r->render(x, y, true, 4);
 
             int status = 0;
 

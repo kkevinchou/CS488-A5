@@ -29,7 +29,7 @@ cast_result RayCaster::cast(const Point3D &pos, const Vector3D &dir) const {
 
         // We've collided with something too close, we were probably
         // casting from the surface and rehit the same object, so ignore
-        if (distSq < 0.01) {
+        if (distSq < 1.0e-8) {
             continue;
         }
 

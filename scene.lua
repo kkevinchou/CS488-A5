@@ -9,8 +9,12 @@ require('readobj')
 
 stone = gr.material({0.8, 0.7, 0.7}, {0.0, 0.0, 0.0}, 0)
 grass = gr.material({1, 0.93, 0.65}, {0.0, 0.0, 0.0}, 0)
-hide = gr.material({0.74, 0.5, 0.43}, {0.3, 0.3, 0.3}, 20)
+hide = gr.material({0.74, 0.5, 0.43}, {0.3, 0.3, 0.3}, 40)
 wood = gr.material({0.66, 0.27, 0.05}, {0.0, 0.0, 0.0}, 0)
+barn_mat = gr.material({1, 0.85, 0.58}, {0.0, 0.0, 0.0}, 0)
+roof_mat = gr.material({0.66, 0.44, 0.28}, {0.0, 0.0, 0.0}, 0)
+door_mat = gr.material({0.87, 0.66, 0.58}, {0.0, 0.0, 0.0}, 0)
+
 
 -- ##############################################
 -- the scene
@@ -143,8 +147,8 @@ for _, pt in pairs({
    fence_instance:add_child(fence_poly)
    fence_instance:translate(unpack(pt[1]))
    fence_instance:rotate('Y', pt[2])
-   fence_instance:translate(-fence_pole_front_num * 2, 0, 0)
-   fence_instance:scale(fence_z, fence_y * 7, fence_z)
+   fence_instance:translate(-fence_pole_front_num * 2, 0, 0.7)
+   fence_instance:scale(fence_z, fence_y * 9, fence_z)
 
    fence_pole_front_num = fence_pole_front_num + 1
 end
@@ -188,7 +192,7 @@ barn = gr.node('barn')
 -- BARN BASE
 
 barn_poly = gr.cube('barn_poly')
-barn_poly:set_material(wood)
+barn_poly:set_material(barn_mat)
 barn:add_child(barn_poly)
 
 --ROOF MESH
@@ -196,22 +200,38 @@ barn:add_child(barn_poly)
 roof = gr.mesh('roof', {
            { 0, 0, 0 },
            { 1, 0, 0 },
-           { 0.5,  1, 0 },
+           { 0.5,  0.5, 0 },
+           { 0, 0, 1 },
+           { 1, 0, 1 },
+           { 0.5,  0.5, 1 },
         }, {
-           {0, 1, 2}
+           {0, 1, 2},
+           {3, 4, 5},
+           {0, 3, 5, 2},
         })
 barn:add_child(roof)
-roof:set_material(hide)
+roof:set_material(roof_mat)
 roof:translate(0, 1, 0)
+
+-- DOOR
+
+door = gr.cube('door')
+
+barn:add_child(door)
+door:set_material(door_mat)
+door:translate(.33, 0, 0.97)
+door:scale(0.33, 0.7, 0.05)
 
 -- BARN
 
 scene:add_child(barn)
-barn:translate(-4, 0, -7)
+barn:translate(-6, 0, -5)
 barn:rotate('Y', 50)
 barn:scale(13, 8, 16)
+
+
 
 gr.render(scene,
       'macho_cows.png', 500, 500,
       {0, 2, 30}, {0, 0, -1}, {0, 1, 0}, 50,
-      {0.4, 0.4, 0.4}, {gr.light({200, 302, 430}, {0.8, 0.8, 0.8}, {1, 0, 0})})
+      {0.4, 0.4, 0.4}, {gr.light({200, 302, -5}, {0.8, 0.6, 0.6}, {1, 0, 0})})
