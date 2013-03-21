@@ -5,6 +5,7 @@
 #include "dist.hpp"
 #include "renderer.hpp"
 #include <ctime>
+#include <iomanip>
 
 extern unsigned short port;
 
@@ -71,9 +72,11 @@ void Coordinator::waitForResults(fd_set &master_set, int max_fd) {
     bool printProgress = true;
     int percentage = 0;
 
-    time_t timer = time(0);
-
     fd_set working_set;
+
+    timeval timer;
+    gettimeofday(&timer, NULL);
+    double startTime = timer.tv_sec + timer.tv_usec/1000000.0;
 
     while (finishedPixels < numPixels) {
         memcpy(&working_set, &master_set, sizeof(master_set));
@@ -104,13 +107,21 @@ void Coordinator::waitForResults(fd_set &master_set, int max_fd) {
         }
     }
 
-    timer = time(0) - timer;
-    cerr << "Completed in " << timer << " seconds." << endl;
+    gettimeofday(&timer, NULL);
+    double endTime = timer.tv_sec + timer.tv_usec/1000000.0;
+    double diff = endTime - startTime;
+
+    int secs = floor(diff);
+    int mins = floor(secs / 60);
+    secs = secs % 60;
+    int millis = (diff - secs) * 1000;
+
+    cerr << setprecision(2) << "Completed in " << mins << "m, " << secs << "s, " << millis << "ms" << endl;
+
     img.savePng(filename);
 }
 
 void Coordinator::distributeWork(vector<int> &workerFds) {
-    unsigned int nextWorker = 0;
     int numWorkers = (int)workerFds.size();
 
     for (unsigned int i = 0; i < numWorkers; i++) {
@@ -128,6 +139,11 @@ void Coordinator::dispatchWorkers() {
 
     vector<int> workerFds;
     vector<string> workerHosts = getWorkerHosts();
+
+    if (workerHosts.size() == 0) {
+        cerr << "No workers available... terminating" << endl;
+        return;
+    }
 
     for (unsigned int i = 0; i < workerHosts.size(); i++) {
         int workerFd = setupSocketAndReturnDescriptor(workerHosts[i].c_str(), port);

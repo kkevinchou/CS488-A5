@@ -16,12 +16,12 @@
 void printServerSettings(int localSocketFd) {
     char localHostName[256];
     gethostname(localHostName, 256);
-    cout << "SERVER_ADDRESS " << localHostName << endl;
+    cout << "SERVER_ADDRESS: " << localHostName << endl;
 
     struct sockaddr_in sin;
     socklen_t len = sizeof(sin);
     getsockname(localSocketFd, (struct sockaddr *)&sin, &len);
-    cout << "SERVER_PORT " << ntohs(sin.sin_port) << endl;
+    cout << "SERVER_PORT: " << ntohs(sin.sin_port) << endl;
 }
 
 int acceptConnection(int localSocketFd) {

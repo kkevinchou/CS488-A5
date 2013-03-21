@@ -84,19 +84,33 @@ int Worker::handleRequest(queue<double> &inData) {
         args.height = this->height;
         args.coordSocketFd = coordSocketFd;
 
-        pthread_t t1;
-        pthread_create(&t1, NULL, &testMethod, &args);
-        pthread_t t2;
-        pthread_create(&t2, NULL, &testMethod, &args);
-        pthread_t t3;
-        pthread_create(&t3, NULL, &testMethod, &args);
-        pthread_t t4;
-        pthread_create(&t4, NULL, &testMethod, &args);
+        // pthread_t t1;
+        // pthread_create(&t1, NULL, &testMethod, &args);
+        // pthread_t t2;
+        // pthread_create(&t2, NULL, &testMethod, &args);
+        // pthread_t t3;
+        // pthread_create(&t3, NULL, &testMethod, &args);
+        // pthread_t t4;
+        // pthread_create(&t4, NULL, &testMethod, &args);
 
-        pthread_join(t1, NULL);
-        pthread_join(t2, NULL);
-        pthread_join(t3, NULL);
-        pthread_join(t4, NULL);
+        vector<pthread_t *> workerThreads;
+
+        int numThreads = numCPUs * 2;
+        for (int i = 0; i < numThreads; i++) {
+            pthread_t *thread = new pthread_t();
+            pthread_create(thread, NULL, &testMethod, &args);
+            workerThreads.push_back(thread);
+        }
+        for (int i = 0; i < numThreads; i++) {
+            pthread_t *thread = workerThreads[i];
+            pthread_join(*thread, NULL);
+            delete thread;
+        }
+
+        // pthread_join(t1, NULL);
+        // pthread_join(t2, NULL);
+        // pthread_join(t3, NULL);
+        // pthread_join(t4, NULL);
 
         return 1;
     }
@@ -104,6 +118,7 @@ int Worker::handleRequest(queue<double> &inData) {
 }
 
 void Worker::wait() {
+
     fd_set master_set, working_set;
     FD_ZERO(&master_set);
     FD_SET(localSocketFd, &master_set);
@@ -135,9 +150,13 @@ void Worker::accept() {
         localSocketFd = socket(AF_INET, SOCK_STREAM, 0);
         listenOnSocket(localSocketFd, port);
         firstRun = false;
+
+        numCPUs = sysconf( _SC_NPROCESSORS_ONLN );
+        cerr << "NUMCPUS: " << numCPUs << endl;
+
+        printServerSettings(localSocketFd);
     }
 
-    printServerSettings(localSocketFd);
     coordSocketFd = acceptConnection(localSocketFd);
 }
 

@@ -59,6 +59,8 @@ private:
     int localSocketFd;
     int coordSocketFd;
 
+    int numCPUs;
+
     int handleRequest(queue<double> &inData);
 };
 

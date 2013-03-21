@@ -9,7 +9,12 @@ int main(int argc, char** argv)
     char * run_type = getenv("RUN_TYPE");
     string runType(run_type);
 
+    bool firstRun = false;
     while (true) {
+        if (firstRun) {
+            cerr << "RUN TYPE: " << runType << endl;
+        }
+
         if (runType == "WORKER") {
             worker.accept();
         }
@@ -24,9 +29,11 @@ int main(int argc, char** argv)
             return 1;
         }
 
-        if (runType == "COORDINATOR") {
+        if (runType != "WORKER") {
             break;
         }
+
+        firstRun = false;
     }
 
     return 0;
