@@ -30,9 +30,6 @@ Mesh::Mesh(const std::vector<Point3D>& verts,
   double size = max(max(maxX - minX, maxY - minY), maxZ - minZ);
 
   aabb = new NonhierBox(minPoint, size);
-  dimension[0] = maxX - minX;
-  dimension[1] = maxY - minY;
-  dimension[2] = maxZ - minZ;
 
   for (unsigned int i = 0; i < m_faces.size(); i++) {
     Face f = m_faces[i];

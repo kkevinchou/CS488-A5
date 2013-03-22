@@ -117,51 +117,6 @@ list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhs, const P
     return hits;
 }
 
-list<collision_result> Collider::boundingBoxSolver(NonhierBox *nhb, const Vector3D &dimension, const Point3D& pos, const Vector3D& dir) const {
-    double tMax =  INFINITY;
-    double tMin = -INFINITY;
-
-    Point3D boxPosition = nhb->get_position();
-
-    collision_result hit;
-    list<collision_result> hits;
-
-    for (int i = 0; i < 3; i++) {
-        double t1 = (boxPosition[i] - pos[i]) / dir[i];
-        double t2 = (boxPosition[i] + max(max(dimension[0], dimension[1]), dimension[2]) - pos[i]) / dir[i];
-
-        if (t1 > t2) {
-            swap(t1, t2);
-        }
-
-        if (t2 < tMax) {
-            tMax = t2;
-        }
-
-        if (t1 > tMin) {
-            tMin = t1;
-
-            if (i == 0) {
-                hit.normal = Vector3D(-dir[0], 0, 0);
-            } else if (i == 1) {
-                hit.normal = Vector3D(0, -dir[1], 0);
-            } else if (i == 2) {
-                hit.normal = Vector3D(0, 0, -dir[2]);
-            }
-            hit.normal.normalize();
-        }
-
-        if ((tMin > tMax) || tMax < 0) {
-            return hits;
-        }
-    }
-
-    hit.point = pos + (tMin - 0.01) * dir;
-    hits.push_back(hit);
-
-    return hits;
-}
-
 list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhb, const Point3D& pos, const Vector3D& dir) const {
     double tMax =  INFINITY;
     double tMin = -INFINITY;
@@ -210,11 +165,11 @@ list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhb, const Point3D
 
 list<collision_result> Collider::meshSolver(Mesh *mesh, const Point3D& pos, const Vector3D& dir, bool useAABB) const {
     if (useAABB) {
-        list<collision_result> aabbHits = boundingBoxSolver(mesh->aabb, mesh->dimension, pos, dir);
-        return aabbHits;
-        // if (aabbHits.size() == 0) {
-        //     return aabbHits;
-        // }
+        list<collision_result> aabbHits = nonhierBoxSolver(mesh->aabb, pos, dir);
+        // return aabbHits;
+        if (aabbHits.size() == 0) {
+            return aabbHits;
+        }
     }
 
     list<collision_result> hits;

@@ -33,8 +33,6 @@ private:
     list<collision_result> meshSolver(Mesh *mesh, const Point3D& pos, const Vector3D& dir, bool useAABB) const;
     list<collision_result> sphereSolver(Sphere *s, const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> cubeSolver(Cube *c, const Point3D& pos, const Vector3D& dir) const;
-
-    list<collision_result> boundingBoxSolver(NonhierBox *nhb, const Vector3D &dimension, const Point3D& pos, const Vector3D& dir) const;
 };
 
 #endif

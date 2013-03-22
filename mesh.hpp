@@ -30,7 +30,6 @@ public:
   vector<struct face_plane> facePlanes;
 
   NonhierBox *aabb;
-  Vector3D dimension;
 
   virtual Type get_type() const {
     return Primitive::MESH;
