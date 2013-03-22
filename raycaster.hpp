@@ -23,18 +23,22 @@ struct cast_result {
 class RayCaster {
 public:
     RayCaster(const Point3D& eye, const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient);
-    cast_result cast(const Point3D &pos, const Vector3D &dir) const;
-    cast_result cast2(const Point3D &pos, const Vector3D &dir) const;
+    cast_result colourCast(const Point3D &pos, const Vector3D &dir) const;
 
-    Colour shade(struct cast_result primaryCast, const Light *light) const;
-    Colour shade(struct cast_result primaryCast) const;
 private:
+    Colour shade(struct cast_result primaryCast) const;
+    Colour shadeFromLight(struct cast_result primaryCast, const Light *light) const;
+    cast_result recursiveColourCast(const Point3D &pos, const Vector3D &dir, int recursionDepth) const;
+
+    cast_result cast(const Point3D &pos, const Vector3D &dir) const;
     const Point3D &eye;
     const Background &bg;
+    const SceneNode *root;
     const list<Light *> &lights;
     const Colour &ambient;
-    const SceneNode *root;
     Collider collider;
+
+    int maxRecursionDepth;
 };
 
 #endif

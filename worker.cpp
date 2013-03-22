@@ -22,7 +22,7 @@ static void *testMethod(void *args) {
         }
 
         for (y = 0; y < height; y++) {
-            vector<double> colour = r->render(x, y, true, 4);
+            vector<double> colour = r->render(x, y, true, 2);
 
             int status = 0;
 
@@ -59,18 +59,14 @@ int Worker::handleRequest(queue<double> &inData) {
         inData.push(d);
     }
 
-    if (inData.size() >= 4) {
+    if (inData.size() >= 2) {
         int column = (int)inData.front();
-        inData.pop();
-        int width = (int)inData.front();
-        inData.pop();
-        int height = (int)inData.front();
         inData.pop();
         int numWorkers = (int)inData.front();
         inData.pop();
 
         WorkPool workPool;
-        for (int i = column; i < width; i += numWorkers) {
+        for (int i = column; i < this->width; i += numWorkers) {
             workPool.addJob(i);
         }
 
@@ -84,18 +80,9 @@ int Worker::handleRequest(queue<double> &inData) {
         args.height = this->height;
         args.coordSocketFd = coordSocketFd;
 
-        // pthread_t t1;
-        // pthread_create(&t1, NULL, &testMethod, &args);
-        // pthread_t t2;
-        // pthread_create(&t2, NULL, &testMethod, &args);
-        // pthread_t t3;
-        // pthread_create(&t3, NULL, &testMethod, &args);
-        // pthread_t t4;
-        // pthread_create(&t4, NULL, &testMethod, &args);
-
         vector<pthread_t *> workerThreads;
 
-        int numThreads = numCPUs * 2;
+        int numThreads = numCPUs;
         for (int i = 0; i < numThreads; i++) {
             pthread_t *thread = new pthread_t();
             pthread_create(thread, NULL, &testMethod, &args);
@@ -106,11 +93,6 @@ int Worker::handleRequest(queue<double> &inData) {
             pthread_join(*thread, NULL);
             delete thread;
         }
-
-        // pthread_join(t1, NULL);
-        // pthread_join(t2, NULL);
-        // pthread_join(t3, NULL);
-        // pthread_join(t4, NULL);
 
         return 1;
     }
@@ -131,6 +113,11 @@ void Worker::wait() {
     while (!computationDone) {
         memcpy(&working_set, &master_set, sizeof(master_set));
         int selectResult = select(coordSocketFd + 1, &working_set, NULL, NULL, NULL);
+
+        if (selectResult < 0) {
+            cerr << "WORKER - SELECT FAILED" << endl;
+            return;
+        }
 
         if (FD_ISSET(coordSocketFd, &working_set)) {
             int handleResult = handleRequest(inData);

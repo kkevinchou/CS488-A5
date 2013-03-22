@@ -82,6 +82,11 @@ void Coordinator::waitForResults(fd_set &master_set, int max_fd) {
         memcpy(&working_set, &master_set, sizeof(master_set));
         int selectResult = select(max_fd + 1, &working_set, NULL, NULL, NULL);
 
+        if (selectResult < 0) {
+            cerr << "COORDINATOR - SELECT FAILED" << endl;
+            return;
+        }
+
         for (int i = 0; i < max_fd + 1; i++) {
             if (FD_ISSET(i, &working_set)) {
                 int workerFd = i;
@@ -124,10 +129,8 @@ void Coordinator::waitForResults(fd_set &master_set, int max_fd) {
 void Coordinator::distributeWork(vector<int> &workerFds) {
     int numWorkers = (int)workerFds.size();
 
-    for (unsigned int i = 0; i < numWorkers; i++) {
+    for (int i = 0; i < numWorkers; i++) {
         sendDouble(workerFds[i], (double)i);
-        sendDouble(workerFds[i], (double)width);
-        sendDouble(workerFds[i], (double)height);
         sendDouble(workerFds[i], (double)numWorkers);
     }
 }

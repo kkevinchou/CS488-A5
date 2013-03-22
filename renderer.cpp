@@ -11,7 +11,7 @@ Renderer::Renderer(// What to render
                const Vector3D& up, double fov,
                // Lighting parameters
                const Colour& ambient,
-               const list<Light*>& lights)
+               const list<Light*> &lights)
 : root(root),
 filename(filename),
 width(width),
@@ -28,6 +28,8 @@ rayCaster(eye, bg, root, lights, ambient) {
     m_side = view.cross(up);
 }
 
+bool debug = false;
+
 vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDimension) const {
     Vector3D dir;
     Colour c(0);
@@ -40,7 +42,10 @@ vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDime
             tan(fov/2 * M_PI/180.0) *
             -m_up + m_view;
 
-        cast_result cr = rayCaster.cast2(eye, dir);
+        if (x == 110 && y == 275) {
+            debug = true;
+        }
+        cast_result cr = rayCaster.colourCast(eye, dir);
 
         c = (cr.hit) ? cr.finalColour : bg.getPixelColour(x, y);
     } else {
@@ -54,7 +59,7 @@ vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDime
                     -m_up + m_view;
                 dir.normalize();
 
-                cast_result cr = rayCaster.cast2(eye, dir);
+                cast_result cr = rayCaster.colourCast(eye, dir);
                 c = (cr.hit) ? c + cr.finalColour : c + bg.getPixelColour(x, y);
             }
         }

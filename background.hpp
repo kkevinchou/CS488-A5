@@ -19,6 +19,7 @@ public:
     }
 
     Colour getPixelColour(double x, double y) const {
+        x++; // removes warning
         return Colour(min((double)(y / height + 0.4), 8.0), 0, min((double)(y / height + 0.4), 8.0));
     }
 
