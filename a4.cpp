@@ -24,7 +24,13 @@ void a4_render(// What to render
                )
 {
     char * run_type = getenv ("RUN_TYPE");
-    string runType(run_type);
+
+    string runType;
+    if (run_type == NULL) {
+        runType = "NORMAL";
+    } else {
+        runType = string(run_type);
+    }
 
     if (runType == "WORKER") {
         worker.setParams(root, filename, width, height, eye, view, up, fov, ambient, lights);

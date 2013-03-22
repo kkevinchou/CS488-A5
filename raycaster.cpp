@@ -82,10 +82,6 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
         Point3D collisionPoint = primaryCast.collisionResult.point;
         Vector3D collisionNormal = primaryCast.collisionResult.normal;
 
-        if (debug) {
-            cerr << collisionNormal << endl;
-        }
-
         Vector3D reflectionDirection = (-2 * (dir.dot(collisionNormal)) * collisionNormal) + dir;
         reflectionDirection.normalize();
 

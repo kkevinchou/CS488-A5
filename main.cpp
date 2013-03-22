@@ -7,7 +7,13 @@ extern Worker worker;
 int main(int argc, char** argv)
 {
     char * run_type = getenv("RUN_TYPE");
-    string runType(run_type);
+
+    string runType;
+    if (run_type == NULL) {
+        runType = "NORMAL";
+    } else {
+        runType = string(run_type);
+    }
 
     bool firstRun = false;
     while (true) {
