@@ -211,10 +211,10 @@ list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhb, const Point3D
 list<collision_result> Collider::meshSolver(Mesh *mesh, const Point3D& pos, const Vector3D& dir, bool useAABB) const {
     if (useAABB) {
         list<collision_result> aabbHits = boundingBoxSolver(mesh->aabb, mesh->dimension, pos, dir);
-        // return aabbHits;
-        if (aabbHits.size() == 0) {
-            return aabbHits;
-        }
+        return aabbHits;
+        // if (aabbHits.size() == 0) {
+        //     return aabbHits;
+        // }
     }
 
     list<collision_result> hits;
