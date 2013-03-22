@@ -2,6 +2,8 @@
 #include "a4.hpp"
 
 extern unsigned short port;
+extern bool superSampling;
+extern int sampleDimension;
 
 static void *testMethod(void *args) {
     struct worker_thread_args *worker_args = (struct worker_thread_args *)args;
@@ -22,7 +24,7 @@ static void *testMethod(void *args) {
         }
 
         for (y = 0; y < height; y++) {
-            vector<double> colour = r->render(x, y, true, 2);
+            vector<double> colour = r->render(x, y, superSampling, sampleDimension);
 
             int status = 0;
 

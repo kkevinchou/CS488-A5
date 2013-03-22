@@ -3,12 +3,12 @@
 #include <algorithm>
 #include <iostream>
 
-extern bool debug;
+extern bool maxRayRecursionDepth;
 
 RayCaster::RayCaster(const Point3D& eye, const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient)
     : eye(eye), bg(bg), root(root), lights(lights), ambient(ambient), collider(root) {
 
-    maxRecursionDepth = 1;
+    maxRecursionDepth = maxRayRecursionDepth;
 }
 
 cast_result RayCaster::cast(const Point3D &pos, const Vector3D &dir) const {
