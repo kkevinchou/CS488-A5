@@ -30,6 +30,8 @@ void a4_render(// What to render
 
 
 
+
+
     string runType;
     if (run_type == NULL) {
         runType = "NORMAL";
