@@ -15,7 +15,22 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
     for (list<collision_result>::iterator it = hits.begin(); it != hits.end(); ++it) {
         it->hitDistance = it->point.dist(pos);
     }
+
+    list<collision_result>::iterator it = hits.begin();
+    while (it != hits.end()) {
+        if (hitDistanceTooClose(*it)) {
+            hits.erase(it++);
+        } else {
+            it++;
+        }
+    }
+    // remove_if(hits.begin(), hits.end(), hitDistanceTooClose);
+
     return hits;
+}
+
+bool Collider::hitDistanceTooClose(const collision_result &cr) const {
+    return (cr.hitDistance < EPSILON);
 }
 
 list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vector3D& dir, const SceneNode* node, Matrix4x4 trans, Matrix4x4 itrans) const {

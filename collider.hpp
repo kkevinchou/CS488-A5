@@ -9,6 +9,8 @@
 
 using namespace std;
 
+
+
 struct collision_result {
     Point3D point;
     Vector3D normal;
@@ -21,6 +23,7 @@ struct collision_result {
     }
 };
 
+
 class Collider {
 public:
     Collider(const SceneNode *root);
@@ -28,6 +31,7 @@ public:
 private:
     const SceneNode *root;
 
+    bool hitDistanceTooClose(const collision_result &cr) const;
     list<collision_result> getCollisionData(const Point3D& pos, const Vector3D& dir, const SceneNode *node, Matrix4x4 trans, Matrix4x4 itrans) const;
 
     list<collision_result> nonhierSphereSolver(NonhierSphere *nhs, const Point3D& pos, const Vector3D& dir) const;
