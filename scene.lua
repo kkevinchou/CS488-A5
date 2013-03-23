@@ -50,7 +50,7 @@ cornell:add_child(test_sphere_pos)
 white_light = gr.light({-100.0, 150.0, 400.0}, {0.9, 0.9, 0.9}, {1, 0, 0})
 orange_light = gr.light({400.0, 100.0, 150.0}, {0.7, 0.0, 0.7}, {1, 0, 0})
 
-box_light = gr.light({0, 0, -8}, {0.9, 0.9, 0.9}, {1, 0, 0})
+box_light = gr.light({0, 0, -3.25}, {0.9, 0.9, 0.9}, {1, 0, 0})
 
 -- gr.render(scene_root, 'scene.png', 500, 500,
 --    {0, 0, -1.9}, {0, 0, -1}, {0, 1, 0}, 50,

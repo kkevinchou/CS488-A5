@@ -34,6 +34,9 @@ vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDime
     Vector3D dir;
     Colour c(0);
 
+    int debugX = 400;
+    int debugY = 250;
+
     if (!superSampling) {
         dir = (x / ((double)width) * 2 - 1) *
             tan(fov/2 * M_PI/180.0) *
@@ -42,7 +45,7 @@ vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDime
             tan(fov/2 * M_PI/180.0) *
             -m_up + m_view;
 
-        if (x == 400 && y == 300) {
+        if (x == debugX && y == debugY) {
             debug = true;
         }
         cast_result cr = rayCaster.colourCast(eye, dir);

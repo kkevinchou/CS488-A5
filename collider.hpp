@@ -17,6 +17,7 @@ struct collision_result {
 
     collision_result() {
         phongMaterial = NULL;
+        hitDistance = -1;
     }
 };
 

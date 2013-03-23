@@ -204,6 +204,17 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
     // way to the light, then the light isn't being occluded
     castResult = cast(position, light->position - position);
     if (!castResult.hit || light->position.dist(position) < castResult.collisionResult.hitDistance) {
+        if (debug) {
+            if (castResult.hit) {
+                cerr << "HIT NORMAL " << castResult.collisionResult.normal << endl;
+                cerr << "LIGHT POSITION " << light->position << endl;
+                cerr << "LIGHT DISTANCE " << light->position.dist(position) << endl;
+                cerr << "HIT POSITION " << castResult.collisionResult.point << endl;
+                cerr << "HIT DISTANCE " << castResult.collisionResult.hitDistance << endl;
+                cerr << "START POSITION " << primaryCast.collisionResult.point << endl;
+            }
+        }
+
         hitLight = true;
         double distSq = position.distSq(light->position);
         Vector3D lightVec = light->position - position;
@@ -227,6 +238,10 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
             colourFromLight = light->colour * materialPropertiesColour * energyIn;
         }
     } else {
+        if (debug) {
+            cerr << castResult.collisionResult.normal << endl;
+        }
+
         hitLight = false;
     }
 

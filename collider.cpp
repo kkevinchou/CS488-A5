@@ -10,7 +10,12 @@ Collider::Collider(const SceneNode *root) : root(root) {
 list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vector3D& dir) const {
     Matrix4x4 trans;
     Matrix4x4 itrans;
-    return getCollisionData(pos, dir, root, trans, itrans);
+
+    list<collision_result> hits = getCollisionData(pos, dir, root, trans, itrans);
+    for (list<collision_result>::iterator it = hits.begin(); it != hits.end(); ++it) {
+        it->hitDistance = it->point.dist(pos);
+    }
+    return hits;
 }
 
 list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vector3D& dir, const SceneNode* node, Matrix4x4 trans, Matrix4x4 itrans) const {
@@ -67,7 +72,6 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
         for (list<collision_result>::iterator it = newHits.begin(); it != newHits.end(); ++it) {
             it->phongMaterial = m;
             it->point = it->point - (EPSILON * dir);
-            it->hitDistance = it->point.dist(pos);
         }
 
         allHits.insert(allHits.end(), newHits.begin(), newHits.end());
