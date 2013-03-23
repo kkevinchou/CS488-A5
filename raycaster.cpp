@@ -10,6 +10,7 @@ extern bool maxRayRecursionDepth;
 extern int numDistributedRays;
 extern double glossRadius;
 extern int numDistributedRays;
+extern double reflectionCoefficient;
 
 RayCaster::RayCaster(const Point3D& eye, const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient)
     : eye(eye), bg(bg), root(root), lights(lights), ambient(ambient), collider(root) {

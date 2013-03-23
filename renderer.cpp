@@ -42,7 +42,7 @@ vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDime
             tan(fov/2 * M_PI/180.0) *
             -m_up + m_view;
 
-        if (x == 110 && y == 275) {
+        if (x == 400 && y == 300) {
             debug = true;
         }
         cast_result cr = rayCaster.colourCast(eye, dir);
