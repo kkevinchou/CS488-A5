@@ -2,8 +2,14 @@
 #include <math.h>
 #include <algorithm>
 #include <iostream>
+#include <cstdlib>
+
+#define PI 3.141592
 
 extern bool maxRayRecursionDepth;
+extern int numDistributedRays;
+extern double glossRadius;
+extern int numDistributedRays;
 
 RayCaster::RayCaster(const Point3D& eye, const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient)
     : eye(eye), bg(bg), root(root), lights(lights), ambient(ambient), collider(root) {
@@ -63,6 +69,82 @@ cast_result RayCaster::colourCast(const Point3D &pos, const Vector3D &dir) const
     return result;
 }
 
+
+double getU(double t)
+{
+    return t/(2*PI);
+}
+
+double getV(double s)
+{
+    return  (cos(s) + 1)/2;
+}
+
+// returns a rand numb between 0 and 1
+double getRandom()
+{
+    return ((double)rand())/(double)RAND_MAX;
+}
+
+Vector3D perturbVector(const Point3D &pos, const Vector3D &dir) {
+    Point3D pointOnSphere = pos + dir;
+
+    double t = acos(pointOnSphere[2] - pos[2]);
+    double s = atan2((pointOnSphere[1] - pos[1]), (pointOnSphere[0] - pos[0]));
+
+    double degree = 0.5*PI/180;
+
+    double s0 = s-degree;
+    double s1 = s+degree;
+    double t0 = t-degree;
+    double t1 = t+degree;
+
+    double randS = s0 + getRandom() * (s1 - s0);
+    double randT = t0 + getRandom() * (t1 - t0);
+
+    Point3D p(cos(randS)*sin(randT) + pos[0],
+                sin(randS)*sin(randT) + pos[1],
+                cos(randT) + pos[2]);
+
+    Vector3D yufDir = p - pos;
+    yufDir.normalize();
+
+    return yufDir;
+}
+
+Vector3D perturbVector2(const Vector3D &dir, double circleRadius) {
+    Vector3D crossAxis;
+
+    if (dir[0] < dir[1] && dir[0] < dir[2]) {
+        crossAxis = Vector3D(1, 0, 0);
+    } else if (dir[1] < dir[2]) {
+        crossAxis = Vector3D(0, 1, 0);
+    } else {
+        crossAxis = Vector3D(0, 0, 1);
+    }
+
+    Vector3D basis1 = dir.cross(crossAxis);
+    Vector3D basis2 = dir.cross(basis1);
+
+    double u;
+    double v;
+
+    double uSquared;
+    double vSquared;
+
+    do {
+        u = getRandom() * (2 * circleRadius) - circleRadius;
+        v = getRandom() * (2 * circleRadius) - circleRadius;
+        uSquared = u * u;
+        vSquared = v * v;
+    } while ((uSquared + vSquared) >= (circleRadius * circleRadius));
+
+    Vector3D perturbedVector = (u * basis1) + (v * basis2) + ((1 - uSquared - vSquared) * dir);
+    perturbedVector.normalize();
+
+    return perturbedVector;
+}
+
 cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &dir, int recursionDepth) const {
     cast_result primaryCast = cast(pos, dir);
 
@@ -74,7 +156,11 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
     Colour finalColour(0);
 
     for (list<Light *>::const_iterator it = lights.begin(); it != lights.end(); it++) {
-        Colour lightColour = shadeFromLight(primaryCast, (*it));
+        bool hitLight;
+        Colour lightColour = shadeFromLight(primaryCast, (*it), hitLight);
+        if (hitLight) {
+            primaryCast.hitLight = true;
+        }
         finalColour = finalColour + lightColour;
     }
 
@@ -85,13 +171,20 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
         Vector3D reflectionDirection = (-2 * (dir.dot(collisionNormal)) * collisionNormal) + dir;
         reflectionDirection.normalize();
 
-        cast_result recursiveCast = recursiveColourCast(collisionPoint, reflectionDirection, recursionDepth + 1);
+        Colour reflectionColour(0);
 
-        if (recursiveCast.hit) {
-            Colour reflectionColour = recursiveCast.finalColour;
-            double refCoef = 0.5;
-            finalColour = ((1 - refCoef) * finalColour) + (refCoef * reflectionColour);
+        for (int i = 0; i < numDistributedRays; i++) {
+            Vector3D stochasticDirection = perturbVector2(reflectionDirection, glossRadius);
+            cast_result recursiveCast = recursiveColourCast(collisionPoint, stochasticDirection, recursionDepth + 1);
+
+            if (recursiveCast.hit) {
+                reflectionColour = reflectionColour + recursiveCast.finalColour;
+            }
         }
+        reflectionColour = (1.0 / numDistributedRays) * reflectionColour;
+
+        double refCoef = 0.2;
+        finalColour = ((1 - refCoef) * finalColour) + (refCoef * reflectionColour);
     }
 
     primaryCast.finalColour = finalColour + ambient * phongMaterial->get_diffuse();
@@ -99,7 +192,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
     return primaryCast;
 }
 
-Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *light) const {
+Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *light, bool &hitLight) const {
     Colour colourFromLight(0);
 
     cast_result castResult;
@@ -110,6 +203,7 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
     // way to the light, then the light isn't being occluded
     castResult = cast(position, light->position - position);
     if (!castResult.hit) {
+        hitLight = true;
         double distSq = position.distSq(light->position);
         Vector3D lightVec = light->position - position;
         lightVec.normalize();
@@ -131,6 +225,8 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
             materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, phongMaterial->get_shininess())) / normal.dot(lightVec) * phongMaterial->get_spec();
             colourFromLight = light->colour * materialPropertiesColour * energyIn;
         }
+    } else {
+        hitLight = false;
     }
 
     return colourFromLight;

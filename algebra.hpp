@@ -480,6 +480,11 @@ private:
   double b_;
 };
 
+inline bool operator ==(const Colour& a, const Colour& b)
+{
+  return (a.R() == b.R() && a.G() == b.G() && a.B() == b.B());
+}
+
 inline Colour operator *(double s, const Colour& a)
 {
   return Colour(s*a.R(), s*a.G(), s*a.B());

@@ -37,6 +37,9 @@ private:
   Colour m_kd;
   Colour m_ks;
 
+  double reflectivity;
+  double glossiness;
+
   double m_shininess;
 };
 

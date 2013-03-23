@@ -9,6 +9,9 @@
 
 extern Worker worker;
 
+extern bool superSampling;
+extern int sampleDimension;
+
 void a4_render(// What to render
                SceneNode* root,
                // Where to output the image
@@ -48,7 +51,7 @@ void a4_render(// What to render
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                vector<double> colour = r.render(x, y);
+                vector<double> colour = r.render(x, y, superSampling, sampleDimension);
                 img(x, y, 0) = colour[0];
                 img(x, y, 1) = colour[1];
                 img(x, y, 2) = colour[2];
