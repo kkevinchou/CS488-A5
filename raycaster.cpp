@@ -173,18 +173,23 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
 
         Colour reflectionColour(0);
 
+        int numHits = 0;
+
         for (int i = 0; i < numDistributedRays; i++) {
             Vector3D stochasticDirection = perturbVector2(reflectionDirection, glossRadius);
             cast_result recursiveCast = recursiveColourCast(collisionPoint, stochasticDirection, recursionDepth + 1);
 
             if (recursiveCast.hit) {
                 reflectionColour = reflectionColour + recursiveCast.finalColour;
+                numHits++;
             }
         }
-        reflectionColour = (1.0 / numDistributedRays) * reflectionColour;
 
-        double refCoef = 0.2;
-        finalColour = ((1 - refCoef) * finalColour) + (refCoef * reflectionColour);
+        if (numHits > 0) {
+            reflectionColour = (1.0 / numHits) * reflectionColour;
+            finalColour = ((1 - reflectionCoefficient) * finalColour) + (reflectionCoefficient * reflectionColour);
+        }
+
     }
 
     primaryCast.finalColour = finalColour + ambient * phongMaterial->get_diffuse();
