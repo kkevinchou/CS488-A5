@@ -105,10 +105,19 @@ list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhs, const P
     int quadResult = quadraticRoots(a, b, c, roots);
 
     list<collision_result> hits;
+
+    double minRoot = INFINITY;
+
     for (int i = 0; i < quadResult; i++) {
         if (roots[i] < 0) continue;
+        if (roots[i] < minRoot) {
+            minRoot = roots[i];
+        }
+    }
+
+    if (minRoot != INFINITY) {
         collision_result hit;
-        hit.point = pos + (roots[i] * dir);
+        hit.point = pos + (minRoot * dir);
         hit.normal = (hit.point - nhs->get_position());
         hit.normal.normalize();
 
