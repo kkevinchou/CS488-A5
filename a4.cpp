@@ -28,10 +28,6 @@ void a4_render(// What to render
 {
     char * run_type = getenv ("RUN_TYPE");
 
-
-
-
-
     string runType;
     if (run_type == NULL) {
         runType = "NORMAL";
