@@ -6,11 +6,7 @@
 #include "dist.hpp"
 #include "renderer.hpp"
 #include "coordinator.hpp"
-
-extern Worker worker;
-
-extern bool superSampling;
-extern int sampleDimension;
+#include "globals.hpp"
 
 void a4_render(// What to render
                SceneNode* root,
@@ -45,7 +41,6 @@ void a4_render(// What to render
         Image img(width, height, 3);
         Renderer r(root, filename, width, height, eye, view, up, fov, ambient, lights);
 
-        bool printProgress = true;
         int percentage = 0;
         clock_t t = clock();
 

@@ -12,6 +12,7 @@ using namespace std;
 struct collision_result {
     Point3D point;
     Vector3D normal;
+    double hitDistance;
     const PhongMaterial *phongMaterial;
 
     collision_result() {

@@ -2,8 +2,7 @@
 #include <math.h>
 #include "polyroots.hpp"
 #include "collider.hpp"
-
-extern bool debug;
+#include "globals.hpp"
 
 Collider::Collider(const SceneNode *root) : root(root) {
 }
@@ -67,6 +66,7 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
         const PhongMaterial *m = static_cast<const PhongMaterial *>(g->get_material());
         for (list<collision_result>::iterator it = newHits.begin(); it != newHits.end(); ++it) {
             it->phongMaterial = m;
+            it->point = it->point - (EPSILON * dir);
         }
 
         allHits.insert(allHits.end(), newHits.begin(), newHits.end());
@@ -157,7 +157,7 @@ list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhb, const Point3D
         }
     }
 
-    hit.point = pos + (tMin - 0.01) * dir;
+    hit.point = pos + (tMin - EPSILON) * dir;
     hits.push_back(hit);
 
     return hits;
