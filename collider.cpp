@@ -67,6 +67,7 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
         for (list<collision_result>::iterator it = newHits.begin(); it != newHits.end(); ++it) {
             it->phongMaterial = m;
             it->point = it->point - (EPSILON * dir);
+            it->hitDistance = it->point.dist(pos);
         }
 
         allHits.insert(allHits.end(), newHits.begin(), newHits.end());

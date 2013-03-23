@@ -203,7 +203,7 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
     // Casting the shadow ray, if it doesn't hit something on the
     // way to the light, then the light isn't being occluded
     castResult = cast(position, light->position - position);
-    if (!castResult.hit) {
+    if (!castResult.hit || light->position.dist(position) < castResult.collisionResult.hitDistance) {
         hitLight = true;
         double distSq = position.distSq(light->position);
         Vector3D lightVec = light->position - position;
