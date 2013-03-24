@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "globals.hpp"
 
 Renderer::Renderer(// What to render
                SceneNode* root,
@@ -28,14 +29,12 @@ rayCaster(eye, bg, root, lights, ambient) {
     m_side = view.cross(up);
 }
 
-bool debug = false;
-
 vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDimension) const {
     Vector3D dir;
     Colour c(0);
 
-    int debugX = 400;
-    int debugY = 250;
+    int debugX = 375;
+    int debugY = 70;
 
     if (!superSampling) {
         dir = (x / ((double)width) * 2 - 1) *

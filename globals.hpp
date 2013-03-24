@@ -13,5 +13,6 @@ extern int numDistributedRays;
 extern double reflectionCoefficient;
 extern const double EPSILON;
 extern bool printProgress;
+extern bool debug;
 
 #endif

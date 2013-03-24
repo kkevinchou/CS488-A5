@@ -109,6 +109,10 @@ Vector3D perturbVector(const Point3D &pos, const Vector3D &dir) {
 }
 
 Vector3D perturbVector2(const Vector3D &dir, double circleRadius) {
+    if (circleRadius == 0) {
+        return dir;
+    }
+
     Vector3D crossAxis;
 
     if (dir[0] < dir[1] && dir[0] < dir[2]) {
@@ -149,6 +153,11 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
     }
 
     const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
+
+    bool isReflective = surfaceMaterial->is_reflective();
+    double glossiness = surfaceMaterial->get_glossiness();
+    double reflectivity = surfaceMaterial->get_reflectivity();
+
     Colour finalColour(0);
 
     for (list<Light *>::const_iterator it = lights.begin(); it != lights.end(); it++) {
@@ -160,7 +169,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
         finalColour = finalColour + lightColour;
     }
 
-    if (recursionDepth < maxRecursionDepth) {
+    if (recursionDepth < maxRecursionDepth && isReflective) {
         Point3D collisionPoint = primaryCast.collisionResult.point;
         Vector3D collisionNormal = primaryCast.collisionResult.normal;
 
@@ -172,7 +181,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
         int numHits = 0;
 
         for (int i = 0; i < numDistributedRays; i++) {
-            Vector3D stochasticDirection = perturbVector2(reflectionDirection, glossRadius);
+            Vector3D stochasticDirection = perturbVector2(reflectionDirection, glossiness);
             cast_result recursiveCast = recursiveColourCast(collisionPoint, stochasticDirection, recursionDepth + 1);
 
             if (recursiveCast.hit) {
@@ -183,7 +192,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
 
         if (numHits > 0) {
             reflectionColour = (1.0 / numHits) * reflectionColour;
-            finalColour = ((1 - reflectionCoefficient) * finalColour) + (reflectionCoefficient * reflectionColour);
+            finalColour = ((1 - reflectivity) * finalColour) + (reflectivity * reflectionColour);
         }
 
     }
@@ -200,20 +209,29 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
     Point3D position = primaryCast.collisionResult.point;
     const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
 
-    // Casting the shadow ray, if it doesn't hit something on the
-    // way to the light, then the light isn't being occluded
-    castResult = cast(position, light->position - position);
+    Vector3D shadowCastDirection = light->position - position;
+    shadowCastDirection.normalize();
+
+    castResult = cast(position, shadowCastDirection);
+
+    // if (debug) {
+    //     cerr << "LIGHT POSITION " << light->position << endl;
+    //     cerr << "LIGHT DISTANCE " << light->position.dist(position) << endl;
+    //     cerr << "START POSITION " << primaryCast.collisionResult.point << endl;
+    //     cerr << "SHADOW CAST DIRECTION " << shadowCastDirection << endl;
+    // }
+
+    // if (debug) {
+    //     if (castResult.hit) {
+    //         cerr << "HIT POSITION " << castResult.collisionResult.point << endl;
+    //         cerr << "HIT DISTANCE " << castResult.collisionResult.hitDistance << endl;
+    //         cerr << "HIT NORMAL " << castResult.collisionResult.normal << endl;
+    //     } else {
+    //         cerr << "MISS!" << endl;
+    //     }
+    // }
+
     if (!castResult.hit || light->position.dist(position) < castResult.collisionResult.hitDistance) {
-        if (debug) {
-            if (castResult.hit) {
-                cerr << "HIT NORMAL " << castResult.collisionResult.normal << endl;
-                cerr << "LIGHT POSITION " << light->position << endl;
-                cerr << "LIGHT DISTANCE " << light->position.dist(position) << endl;
-                cerr << "HIT POSITION " << castResult.collisionResult.point << endl;
-                cerr << "HIT DISTANCE " << castResult.collisionResult.hitDistance << endl;
-                cerr << "START POSITION " << primaryCast.collisionResult.point << endl;
-            }
-        }
 
         hitLight = true;
         double distSq = position.distSq(light->position);
