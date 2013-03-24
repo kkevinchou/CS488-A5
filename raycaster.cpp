@@ -232,7 +232,6 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
     // }
 
     if (!castResult.hit || light->position.dist(position) < castResult.collisionResult.hitDistance) {
-
         hitLight = true;
         double distSq = position.distSq(light->position);
         Vector3D lightVec = light->position - position;
@@ -245,6 +244,8 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
         energyIn /= (falloff[0] + falloff[1] * sqrt(distSq) + falloff[2] * distSq);
 
         Vector3D r = (-1 * lightVec) + (2 * lightDotNormal * normal);
+        r.normalize();
+
         Vector3D eyeVec = eye - position;
         eyeVec.normalize();
 
@@ -256,10 +257,6 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
             colourFromLight = light->colour * materialPropertiesColour * energyIn;
         }
     } else {
-        if (debug) {
-            cerr << castResult.collisionResult.normal << endl;
-        }
-
         hitLight = false;
     }
 
