@@ -136,6 +136,7 @@ void Coordinator::distributeWork(vector<int> &workerFds) {
 }
 
 void Coordinator::dispatchWorkers() {
+    cerr << "COORDINATOR - DISPATCHING WORKERS" << endl;
     int max_fd = 0;
     fd_set master_set;
     FD_ZERO(&master_set);

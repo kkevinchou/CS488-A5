@@ -299,7 +299,6 @@ int gr_light_cmd(lua_State* L)
   gr_light_ud* data = (gr_light_ud*)lua_newuserdata(L, sizeof(gr_light_ud));
   data->light = 0;
 
-
   Light l;
   Vector3D rightVec, downVec;
 
@@ -307,10 +306,12 @@ int gr_light_cmd(lua_State* L)
   get_tuple(L, 1, &l.position[0], 3);
   get_tuple(L, 2, col, 3);
   get_tuple(L, 3, l.falloff, 3);
-  // cerr << "BEFORE" << endl;
-  // get_tuple(L, 4, &rightVec[0], 3);
-  // cerr << "AFTER" << endl;
-  // get_tuple(L, 5, &downVec[0], 3);
+
+  if (!lua_isuserdata(L, 4)) {
+    get_tuple(L, 4, &l.rightVec[0], 3);
+    get_tuple(L, 5, &l.downVec[0], 3);
+    l.isAreaLight = true;
+  }
 
   l.colour = Colour(col[0], col[1], col[2]);
 

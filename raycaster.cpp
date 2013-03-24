@@ -161,11 +161,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
     Colour finalColour(0);
 
     for (list<Light *>::const_iterator it = lights.begin(); it != lights.end(); it++) {
-        bool hitLight;
-        Colour lightColour = shadeFromLight(primaryCast, (*it), hitLight);
-        if (hitLight) {
-            primaryCast.hitLight = true;
-        }
+        Colour lightColour = shadeFromLight(primaryCast, (*it));
         finalColour = finalColour + lightColour;
     }
 
@@ -202,37 +198,18 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
     return primaryCast;
 }
 
-Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *light, bool &hitLight) const {
-    Colour colourFromLight(0);
+Colour RayCaster::calculateColourFromPointLight(struct cast_result primaryCast, const Light *light) const {
+    Colour colour(0);
 
     cast_result castResult;
     Point3D position = primaryCast.collisionResult.point;
-    const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
 
     Vector3D shadowCastDirection = light->position - position;
     shadowCastDirection.normalize();
 
     castResult = cast(position, shadowCastDirection);
 
-    // if (debug) {
-    //     cerr << "LIGHT POSITION " << light->position << endl;
-    //     cerr << "LIGHT DISTANCE " << light->position.dist(position) << endl;
-    //     cerr << "START POSITION " << primaryCast.collisionResult.point << endl;
-    //     cerr << "SHADOW CAST DIRECTION " << shadowCastDirection << endl;
-    // }
-
-    // if (debug) {
-    //     if (castResult.hit) {
-    //         cerr << "HIT POSITION " << castResult.collisionResult.point << endl;
-    //         cerr << "HIT DISTANCE " << castResult.collisionResult.hitDistance << endl;
-    //         cerr << "HIT NORMAL " << castResult.collisionResult.normal << endl;
-    //     } else {
-    //         cerr << "MISS!" << endl;
-    //     }
-    // }
-
     if (!castResult.hit || light->position.dist(position) < castResult.collisionResult.hitDistance) {
-        hitLight = true;
         double distSq = position.distSq(light->position);
         Vector3D lightVec = light->position - position;
         lightVec.normalize();
@@ -250,14 +227,123 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
         eyeVec.normalize();
 
         double rDotEye = max(r.dot(eyeVec), 0.0);
+
+        const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
         Colour materialPropertiesColour = surfaceMaterial->get_diffuse();
 
         if (lightDotNormal > 0.0) {
             materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, surfaceMaterial->get_shininess())) / normal.dot(lightVec) * surfaceMaterial->get_spec();
-            colourFromLight = light->colour * materialPropertiesColour * energyIn;
+            colour = light->colour * materialPropertiesColour * energyIn;
         }
-    } else {
-        hitLight = false;
+    }
+
+    return colour;
+}
+
+Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, const Light *light, int cellX, int cellY) const {
+    Colour colour(0);
+
+    cast_result castResult;
+    Point3D position = primaryCast.collisionResult.point;
+
+    Vector3D rightVecOffset = ((1.0 / areaLightSampleDimension) * ((double)cellX + 0.5)) * light->rightVec;
+    Vector3D downVecOffset = ((1.0 / areaLightSampleDimension) * ((double)cellY + 0.5)) * light->downVec;
+
+    Point3D samplePosition = light->position;
+    samplePosition = samplePosition + rightVecOffset + downVecOffset;
+
+    Vector3D shadowCastDirection = samplePosition - position;
+    shadowCastDirection.normalize();
+
+    castResult = cast(position, shadowCastDirection);
+
+    // if (debug) {
+    //     cerr << "LIGHT POSITION " << samplePosition << endl;
+    //     cerr << "LIGHT DISTANCE " << samplePosition.dist(position) << endl;
+    //     cerr << "START POSITION " << position << endl;
+    //     cerr << "SHADOW CAST DIRECTION " << shadowCastDirection << endl;
+    // }
+
+    // if (debug) {
+    //     if (castResult.hit) {
+    //         cerr << "HIT POSITION " << castResult.collisionResult.point << endl;
+    //         cerr << "HIT DISTANCE " << castResult.collisionResult.hitDistance << endl;
+    //         cerr << "HIT NORMAL " << castResult.collisionResult.normal << endl;
+    //     } else {
+    //         cerr << "MISS!" << endl;
+    //     }
+    // }
+
+    if (!castResult.hit || samplePosition.dist(position) < castResult.collisionResult.hitDistance) {
+        double distSq = position.distSq(samplePosition);
+        Vector3D lightVec = samplePosition - position;
+        lightVec.normalize();
+        Vector3D normal = primaryCast.collisionResult.normal;
+
+        double lightDotNormal = max(lightVec.dot(normal), 0.0);
+        const double *falloff = light->falloff;
+        double energyIn = lightDotNormal;
+        energyIn /= (falloff[0] + falloff[1] * sqrt(distSq) + falloff[2] * distSq);
+
+        Vector3D r = (-1 * lightVec) + (2 * lightDotNormal * normal);
+        r.normalize();
+
+        Vector3D eyeVec = eye - position;
+        eyeVec.normalize();
+
+        double rDotEye = max(r.dot(eyeVec), 0.0);
+
+        const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
+        Colour materialPropertiesColour = surfaceMaterial->get_diffuse();
+
+        if (lightDotNormal > 0.0) {
+            materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, surfaceMaterial->get_shininess())) / normal.dot(lightVec) * surfaceMaterial->get_spec();
+            colour = light->colour * materialPropertiesColour * energyIn;
+        }
+    }
+
+    // if (debug) {
+    //     cerr << "COLOUR " << colour << endl;
+    //     cerr << "==================================================" << endl;
+    // }
+
+    return colour;
+}
+
+Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *light) const {
+    // if (debug) {
+    //     cerr << "LIGHT POSITION " << light->position << endl;
+    //     cerr << "LIGHT DISTANCE " << light->position.dist(position) << endl;
+    //     cerr << "START POSITION " << primaryCast.collisionResult.point << endl;
+    //     cerr << "SHADOW CAST DIRECTION " << shadowCastDirection << endl;
+    // }
+
+    // if (debug) {
+    //     if (castResult.hit) {
+    //         cerr << "HIT POSITION " << castResult.collisionResult.point << endl;
+    //         cerr << "HIT DISTANCE " << castResult.collisionResult.hitDistance << endl;
+    //         cerr << "HIT NORMAL " << castResult.collisionResult.normal << endl;
+    //     } else {
+    //         cerr << "MISS!" << endl;
+    //     }
+    // }
+
+    Colour colourFromLight(0);
+
+    if (light->isAreaLight) {
+        Colour averageColour(0);
+
+        for (int i = 0; i < areaLightSampleDimension; i++) {
+            for (int j = 0; j < areaLightSampleDimension; j++) {
+                Colour sampleColour = sampleColourFromAreaLight(primaryCast, light, i, j);
+                averageColour = averageColour + sampleColour;
+            }
+        }
+
+        averageColour = (1.0 / (areaLightSampleDimension * areaLightSampleDimension)) * averageColour;
+        colourFromLight = averageColour;
+    } else { // Point Light
+        colourFromLight = calculateColourFromPointLight(primaryCast, light);
     }
 
     return colourFromLight;

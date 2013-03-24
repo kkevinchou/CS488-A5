@@ -8,6 +8,7 @@ Light::Light()
   falloff[0] = 1.0;
   falloff[1] = 0.0;
   falloff[2] = 0.0;
+  isAreaLight = false;
 }
 
 std::ostream& operator<<(std::ostream& out, const Light& l)

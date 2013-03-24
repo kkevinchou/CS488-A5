@@ -10,3 +10,4 @@ int numDistributedRays = 1;
 double const EPSILON = 1.0e-8;
 bool printProgress = true;
 bool debug = false;
+int areaLightSampleDimension = 10;
