@@ -73,28 +73,28 @@ fence_poly:set_material(wood)
 -- RENDER COWS
 --------------------------------------------------------
 
-cow_number = 1
+-- cow_number = 1
 
-for _, pt in pairs({
-              -- {{-8,1.3,0}, 225},
-              -- {{-4,1.3,0}, 225},
-              -- {{0,1.3,0}, 225},
-              -- {{-8,1.3,4}, 225},
-              -- {{-4,1.3,4}, 225},
-              -- {{0,1.3,4}, 225},
-              {{-8.7,1.3,10.2}, 65},
-              {{-6,1.3,8}, 151},
-              {{-2,1.3,8}, 225},
-              }) do
-   cow_instance = gr.node('cow' .. tostring(cow_number))
-   scene:add_child(cow_instance)
-   cow_instance:add_child(cow_poly)
-   cow_instance:translate(unpack(pt[1]))
-   cow_instance:rotate('Y', pt[2])
-   cow_instance:scale(1.4, 1.4, 1.4)
+-- for _, pt in pairs({
+--               -- {{-8,1.3,0}, 225},
+--               -- {{-4,1.3,0}, 225},
+--               -- {{0,1.3,0}, 225},
+--               -- {{-8,1.3,4}, 225},
+--               -- {{-4,1.3,4}, 225},
+--               -- {{0,1.3,4}, 225},
+--               {{-8.7,1.3,10.2}, 65},
+--               {{-6,1.3,8}, 151},
+--               {{-2,1.3,8}, 225},
+--               }) do
+--    cow_instance = gr.node('cow' .. tostring(cow_number))
+--    scene:add_child(cow_instance)
+--    cow_instance:add_child(cow_poly)
+--    cow_instance:translate(unpack(pt[1]))
+--    cow_instance:rotate('Y', pt[2])
+--    cow_instance:scale(1.4, 1.4, 1.4)
 
-   cow_number = cow_number + 1
-end
+--    cow_number = cow_number + 1
+-- end
 
 --------------------------------------------------------
 -- RENDER FENCES

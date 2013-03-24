@@ -13,6 +13,7 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
 
     list<collision_result> hits = getCollisionData(pos, dir, root, trans, itrans);
     for (list<collision_result>::iterator it = hits.begin(); it != hits.end(); ++it) {
+        it->point = it->point - (EPSILON * dir);
         it->hitDistance = it->point.dist(pos);
     }
 
@@ -24,7 +25,6 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
             it++;
         }
     }
-    // remove_if(hits.begin(), hits.end(), hitDistanceTooClose);
 
     return hits;
 }
@@ -50,32 +50,32 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
         switch (g->get_type()) {
             case Primitive::NONHIERSPHERE:
                 {
-                    NonhierSphere *p = static_cast<NonhierSphere *>(g->get_primitive());
-                    newHits = nonhierSphereSolver(p, tpos, tdir);
+                    NonhierSphere *nhSphere = static_cast<NonhierSphere *>(g->get_primitive());
+                    newHits = nonhierSphereSolver(nhSphere, tpos, tdir);
                     break;
                 }
             case Primitive::SPHERE:
                 {
-                    Sphere *p = static_cast<Sphere *>(g->get_primitive());
-                    newHits = sphereSolver(p, tpos, tdir);
+                    Sphere *sphere = static_cast<Sphere *>(g->get_primitive());
+                    newHits = sphereSolver(sphere, tpos, tdir);
                     break;
                 }
             case Primitive::CUBE:
                 {
-                    Cube *c = static_cast<Cube *>(g->get_primitive());
-                    newHits = cubeSolver(c, tpos, tdir);
+                    Cube *cube = static_cast<Cube *>(g->get_primitive());
+                    newHits = cubeSolver(cube, tpos, tdir);
                     break;
                 }
             case Primitive::NONHIERBOX:
                 {
-                    NonhierBox *p = static_cast<NonhierBox *>(g->get_primitive());
-                    newHits = nonhierBoxSolver(p, tpos, tdir);
+                    NonhierBox *nhBox = static_cast<NonhierBox *>(g->get_primitive());
+                    newHits = nonhierBoxSolver(nhBox, tpos, tdir);
                     break;
                 }
             case Primitive::MESH:
                 {
-                    Mesh *p = static_cast<Mesh *>(g->get_primitive());
-                    newHits = meshSolver(p, tpos, tdir, true);
+                    Mesh *mesh = static_cast<Mesh *>(g->get_primitive());
+                    newHits = meshSolver(mesh, tpos, tdir, true);
                     break;
                 }
             default:
@@ -86,7 +86,6 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
         const PhongMaterial *m = static_cast<const PhongMaterial *>(g->get_material());
         for (list<collision_result>::iterator it = newHits.begin(); it != newHits.end(); ++it) {
             it->phongMaterial = m;
-            it->point = it->point - (EPSILON * dir);
         }
 
         allHits.insert(allHits.end(), newHits.begin(), newHits.end());
@@ -107,18 +106,18 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
     return allHits;
 }
 
-list<collision_result> Collider::sphereSolver(Sphere *s, const Point3D& pos, const Vector3D& dir) const {
-    return nonhierSphereSolver(&s->m_nonhierSphere, pos, dir);
+list<collision_result> Collider::sphereSolver(Sphere *sphere, const Point3D& pos, const Vector3D& dir) const {
+    return nonhierSphereSolver(&sphere->m_nonhierSphere, pos, dir);
 }
 
-list<collision_result> Collider::cubeSolver(Cube *c, const Point3D& pos, const Vector3D& dir) const {
-    return nonhierBoxSolver(&c->m_nonhierBox, pos, dir);
+list<collision_result> Collider::cubeSolver(Cube *cube, const Point3D& pos, const Vector3D& dir) const {
+    return nonhierBoxSolver(&cube->m_nonhierBox, pos, dir);
 }
 
-list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhs, const Point3D& pos, const Vector3D& dir) const {
+list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhSphere, const Point3D& pos, const Vector3D& dir) const {
     double a = dir.dot(dir);
-    double b = (pos - nhs->get_position()).dot(dir) * 2;
-    double c = (pos - nhs->get_position()).dot(pos - nhs->get_position()) - (nhs->get_radius() * nhs->get_radius());
+    double b = (pos - nhSphere->get_position()).dot(dir) * 2;
+    double c = (pos - nhSphere->get_position()).dot(pos - nhSphere->get_position()) - (nhSphere->get_radius() * nhSphere->get_radius());
 
     double roots[2];
     int quadResult = quadraticRoots(a, b, c, roots);
@@ -137,7 +136,7 @@ list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhs, const P
     if (minRoot != INFINITY) {
         collision_result hit;
         hit.point = pos + (minRoot * dir);
-        hit.normal = (hit.point - nhs->get_position());
+        hit.normal = (hit.point - nhSphere->get_position());
         hit.normal.normalize();
 
         hits.push_back(hit);
@@ -146,12 +145,12 @@ list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhs, const P
     return hits;
 }
 
-list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhb, const Point3D& pos, const Vector3D& dir) const {
+list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhBox, const Point3D& pos, const Vector3D& dir) const {
     double tMax =  INFINITY;
     double tMin = -INFINITY;
 
-    Point3D boxPosition = nhb->get_position();
-    double size = nhb->get_size();
+    Point3D boxPosition = nhBox->get_position();
+    double size = nhBox->get_size();
 
     collision_result hit;
     list<collision_result> hits;

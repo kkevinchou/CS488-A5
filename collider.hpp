@@ -34,11 +34,11 @@ private:
     bool hitDistanceTooClose(const collision_result &cr) const;
     list<collision_result> getCollisionData(const Point3D& pos, const Vector3D& dir, const SceneNode *node, Matrix4x4 trans, Matrix4x4 itrans) const;
 
-    list<collision_result> nonhierSphereSolver(NonhierSphere *nhs, const Point3D& pos, const Vector3D& dir) const;
-    list<collision_result> nonhierBoxSolver(NonhierBox *nhb, const Point3D& pos, const Vector3D& dir) const;
+    list<collision_result> nonhierSphereSolver(NonhierSphere *nhSphere, const Point3D& pos, const Vector3D& dir) const;
+    list<collision_result> nonhierBoxSolver(NonhierBox *nhBox, const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> meshSolver(Mesh *mesh, const Point3D& pos, const Vector3D& dir, bool useAABB) const;
-    list<collision_result> sphereSolver(Sphere *s, const Point3D& pos, const Vector3D& dir) const;
-    list<collision_result> cubeSolver(Cube *c, const Point3D& pos, const Vector3D& dir) const;
+    list<collision_result> sphereSolver(Sphere *sphere, const Point3D& pos, const Vector3D& dir) const;
+    list<collision_result> cubeSolver(Cube *cube, const Point3D& pos, const Vector3D& dir) const;
 };
 
 #endif
