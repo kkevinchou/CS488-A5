@@ -83,9 +83,9 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
                 break;
         }
 
-        const PhongMaterial *m = static_cast<const PhongMaterial *>(g->get_material());
+        const PhongMaterial *surfaceMaterial = static_cast<const PhongMaterial *>(g->get_material());
         for (list<collision_result>::iterator it = newHits.begin(); it != newHits.end(); ++it) {
-            it->phongMaterial = m;
+            it->surfaceMaterial = surfaceMaterial;
         }
 
         allHits.insert(allHits.end(), newHits.begin(), newHits.end());

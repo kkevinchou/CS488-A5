@@ -397,7 +397,7 @@ int gr_material_cmd(lua_State* L)
 
   data->material = new PhongMaterial(Colour(kd[0], kd[1], kd[2]),
                                      Colour(ks[0], ks[1], ks[2]),
-                                     shininess);
+                                     shininess, glossiness, reflectivity);
 
   luaL_newmetatable(L, "gr.material");
   lua_setmetatable(L, -2);

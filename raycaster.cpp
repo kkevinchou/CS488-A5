@@ -148,7 +148,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
         return primaryCast;
     }
 
-    const PhongMaterial *phongMaterial = primaryCast.collisionResult.phongMaterial;
+    const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
     Colour finalColour(0);
 
     for (list<Light *>::const_iterator it = lights.begin(); it != lights.end(); it++) {
@@ -188,7 +188,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
 
     }
 
-    primaryCast.finalColour = finalColour + ambient * phongMaterial->get_diffuse();
+    primaryCast.finalColour = finalColour + ambient * surfaceMaterial->get_diffuse();
 
     return primaryCast;
 }
@@ -198,7 +198,7 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
 
     cast_result castResult;
     Point3D position = primaryCast.collisionResult.point;
-    const PhongMaterial *phongMaterial = primaryCast.collisionResult.phongMaterial;
+    const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
 
     // Casting the shadow ray, if it doesn't hit something on the
     // way to the light, then the light isn't being occluded
@@ -231,10 +231,10 @@ Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *li
         eyeVec.normalize();
 
         double rDotEye = max(r.dot(eyeVec), 0.0);
-        Colour materialPropertiesColour = phongMaterial->get_diffuse();
+        Colour materialPropertiesColour = surfaceMaterial->get_diffuse();
 
         if (lightDotNormal > 0.0) {
-            materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, phongMaterial->get_shininess())) / normal.dot(lightVec) * phongMaterial->get_spec();
+            materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, surfaceMaterial->get_shininess())) / normal.dot(lightVec) * surfaceMaterial->get_spec();
             colourFromLight = light->colour * materialPropertiesColour * energyIn;
         }
     } else {

@@ -4,8 +4,8 @@ Material::~Material()
 {
 }
 
-PhongMaterial::PhongMaterial(const Colour& kd, const Colour& ks, double shininess)
-  : m_kd(kd), m_ks(ks), m_shininess(shininess)
+PhongMaterial::PhongMaterial(const Colour& kd, const Colour& ks, double shininess, double glossiness, double reflectivity)
+  : m_kd(kd), m_ks(ks), m_shininess(shininess), m_glossiness(glossiness), m_reflectivity(reflectivity)
 {
 }
 

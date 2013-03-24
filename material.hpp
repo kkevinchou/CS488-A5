@@ -16,7 +16,7 @@ protected:
 
 class PhongMaterial : public Material {
 public:
-  PhongMaterial(const Colour& kd, const Colour& ks, double shininess);
+  PhongMaterial(const Colour& kd, const Colour& ks, double shininess, double glossiness, double reflectivity);
   virtual ~PhongMaterial();
 
   virtual void apply_gl() const;
@@ -33,14 +33,24 @@ public:
     return m_shininess;
   }
 
+  double get_glossiness() const {
+    return m_glossiness;
+  }
+
+  double get_reflectivity() const {
+    return m_reflectivity;
+  }
+
+  double is_reflective() const {
+    return m_reflectivity > 0;
+  }
 private:
   Colour m_kd;
   Colour m_ks;
 
-  double reflectivity;
-  double glossiness;
-
   double m_shininess;
+  double m_glossiness;
+  double m_reflectivity;
 };
 
 

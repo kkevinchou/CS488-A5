@@ -15,10 +15,10 @@ struct collision_result {
     Point3D point;
     Vector3D normal;
     double hitDistance;
-    const PhongMaterial *phongMaterial;
+    const PhongMaterial *surfaceMaterial;
 
     collision_result() {
-        phongMaterial = NULL;
+        surfaceMaterial = NULL;
         hitDistance = -1;
     }
 };
