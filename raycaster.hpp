@@ -36,6 +36,9 @@ private:
     Colour shadeFromLight(struct cast_result primaryCast, const Light *light) const;
     cast_result recursiveColourCast(const Point3D &pos, const Vector3D &dir, int recursionDepth) const;
 
+    double getRandom() const;
+    Vector3D perturbVector(const Vector3D &dir, double circleRadius) const;
+
     cast_result cast(const Point3D &pos, const Vector3D &dir) const;
     const Point3D &eye;
     const Background &bg;

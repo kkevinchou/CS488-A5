@@ -65,50 +65,12 @@ cast_result RayCaster::colourCast(const Point3D &pos, const Vector3D &dir) const
     return result;
 }
 
-
-double getU(double t)
-{
-    return t/(2*PI);
-}
-
-double getV(double s)
-{
-    return  (cos(s) + 1)/2;
-}
-
-// returns a rand numb between 0 and 1
-double getRandom()
-{
+// returns a random number between 0 and 1
+double RayCaster::getRandom() const {
     return ((double)rand())/(double)RAND_MAX;
 }
 
-Vector3D perturbVector(const Point3D &pos, const Vector3D &dir) {
-    Point3D pointOnSphere = pos + dir;
-
-    double t = acos(pointOnSphere[2] - pos[2]);
-    double s = atan2((pointOnSphere[1] - pos[1]), (pointOnSphere[0] - pos[0]));
-
-    double degree = 0.5*PI/180;
-
-    double s0 = s-degree;
-    double s1 = s+degree;
-    double t0 = t-degree;
-    double t1 = t+degree;
-
-    double randS = s0 + getRandom() * (s1 - s0);
-    double randT = t0 + getRandom() * (t1 - t0);
-
-    Point3D p(cos(randS)*sin(randT) + pos[0],
-                sin(randS)*sin(randT) + pos[1],
-                cos(randT) + pos[2]);
-
-    Vector3D yufDir = p - pos;
-    yufDir.normalize();
-
-    return yufDir;
-}
-
-Vector3D perturbVector2(const Vector3D &dir, double circleRadius) {
+Vector3D RayCaster::perturbVector(const Vector3D &dir, double circleRadius) const {
     if (circleRadius == 0) {
         return dir;
     }
@@ -177,7 +139,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
         int numHits = 0;
 
         for (int i = 0; i < numDistributedRays; i++) {
-            Vector3D stochasticDirection = perturbVector2(reflectionDirection, glossiness);
+            Vector3D stochasticDirection = perturbVector(reflectionDirection, glossiness);
             cast_result recursiveCast = recursiveColourCast(collisionPoint, stochasticDirection, recursionDepth + 1);
 
             if (recursiveCast.hit) {
@@ -246,8 +208,14 @@ Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, cons
     cast_result castResult;
     Point3D position = primaryCast.collisionResult.point;
 
-    Vector3D rightVecOffset = ((1.0 / areaLightSampleDimension) * ((double)cellX + 0.5)) * light->rightVec;
-    Vector3D downVecOffset = ((1.0 / areaLightSampleDimension) * ((double)cellY + 0.5)) * light->downVec;
+    double monteCarloOffsetX = getRandom() * - 0.5;
+    double monteCarloOffsetY = getRandom() * - 0.5;
+
+    // monteCarloOffsetX = 0;
+    // monteCarloOffsetY = 0;
+
+    Vector3D rightVecOffset = ((1.0 / areaLightSampleDimension) * ((double)cellX + 0.5 + monteCarloOffsetX)) * light->rightVec;
+    Vector3D downVecOffset = ((1.0 / areaLightSampleDimension) * ((double)cellY + 0.5 + monteCarloOffsetY)) * light->downVec;
 
     Point3D samplePosition = light->position;
     samplePosition = samplePosition + rightVecOffset + downVecOffset;
