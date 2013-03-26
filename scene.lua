@@ -48,7 +48,7 @@ cylinder:translate(0, 1, -5)
 -- cylinder:scale(0.1, 0.1, 0.1)
 -- cylinder:rotate('y', 25)
 -- cylinder:rotate('y', 90)
-cylinder:rotate('y', 90)
+cylinder:rotate('y', 60)
 cylinder:set_material(blue)
 cornell:add_child(cylinder)
 
