@@ -156,84 +156,123 @@ bool epsilonEquals(double a, double b) {
 list<collision_result> Collider::cylinderSolver(Cylinder *cylinder, const Point3D& pos, const Vector3D& dir) const {
     // From: http://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html#SECTION00023200000000000000
 
-    if (dir[2] == 0) {
-        list<collision_result> emptyResult;
-        return emptyResult;
-    }
+    // if (dir[2] == 0) {
+    //     list<collision_result> emptyResult;
+    //     return emptyResult;
+    // }
 
     double a = (dir[0] * dir[0]) + (dir[1] * dir[1]);
     double b = (2 * pos[0] * dir[0]) + (2 * pos[1] * dir[1]);
-    double c = (pos[0] * pos[0]) + (pos[1] + pos[1]) - 1;
+    double c = (pos[0] * pos[0]) + (pos[1] * pos[1]) - 1;
 
     double roots[2];
     int quadResult = quadraticRoots(a, b, c, roots);
 
-    double cylinderHeight = 1.0;
+    double minRoot = INFINITY;
 
-    vector<Point3D> hitPoints;
     for (int i = 0; i < quadResult; i++) {
-        if (roots[i] < 0) continue;
+        if (roots[i] < 0) {
+            continue;
+        }
 
         Point3D hitPoint = pos + (roots[i] * dir);
-        double hitZ = hitPoint[2];
 
-        if (inRange(hitZ, 0, cylinderHeight)) {
-            hitPoints.push_back(pos + (roots[i] * dir));
-        }
-    }
+        if (debug) cerr << "HIT POINT CANDIDATE " << hitPoint << endl;
 
-    double topRoot = (cylinderHeight - pos[2]) / dir[2];
-    Point3D topPoint = pos + (topRoot * dir);
-    if (topRoot >= 0 && ((topPoint[0] * topPoint[0]) + (topPoint[1] * topPoint[1])) <= ((1 + EPSILON) * (1 + EPSILON))) {
-        hitPoints.push_back(topPoint);
-    }
+        double x_2 = hitPoint[0] * hitPoint[0];
+        double y_2 = hitPoint[1] * hitPoint[1];
+        double radius_2 = (1.0 + EPSILON) * (1.0 + EPSILON);
 
-    double bottomRoot = (0 - pos[2]) / dir[2];
-    Point3D bottomPoint = pos + (bottomRoot * dir);
-    if (bottomRoot >= 0 && ((bottomPoint[0] * bottomPoint[0]) + (bottomPoint[1] * bottomPoint[1])) <= ((1 + EPSILON) * (1 + EPSILON))) {
-        hitPoints.push_back(bottomPoint);
-    }
-
-    Point3D closestPoint;
-    double minDist = INFINITY;
-    for (vector<Point3D>::iterator it = hitPoints.begin(); it != hitPoints.end(); it++) {
-        double distance = it->dist(pos);
-        if (distance < minDist) {
-            minDist = distance;
-            closestPoint = *it;
+        if ((roots[i] < minRoot) && ((x_2 + y_2) <= radius_2)) {
+            minRoot = roots[i];
         }
     }
 
     list<collision_result> hits;
 
-    if (minDist == INFINITY) {
-        return hits;
-    }
-
-    collision_result hit;
-    hit.point = closestPoint;
-
-    if (epsilonEquals(hit.point[2], cylinderHeight)) {
-        hit.normal = Vector3D(0, 0, 1);
-    } else if (epsilonEquals(hit.point[2], 0)) {
-        hit.normal = Vector3D(0, 0, -1);
-    } else {
+    if (minRoot != INFINITY) {
+        collision_result hit;
+        hit.point = pos + (minRoot * dir);
         hit.normal = Vector3D(hit.point[0], hit.point[1], 0);
         hit.normal.normalize();
+        if (debug) {
+            cerr << "HIT POINT " << hit.point << endl;
+            cerr << "HIT NORMAL " << hit.normal << endl;
+        }
+
+        hits.push_back(hit);
     }
 
-    if (debug) {
-        cerr << hit.point << endl;
-        cerr << hit.normal << endl;
-    }
-
-    hits.push_back(hit);
-
-    if (debug) {
-        cerr << "===============================" << endl;
-    }
+    if (debug) cerr << "====================================" << endl;
 
     return hits;
+
+    // double cylinderHeight = 1.0;
+
+    // vector<Point3D> hitPoints;
+    // for (int i = 0; i < quadResult; i++) {
+    //     if (roots[i] < 0) continue;
+
+    //     Point3D hitPoint = pos + (roots[i] * dir);
+    //     double hitZ = hitPoint[2];
+
+    //     if (inRange(hitZ, 0, cylinderHeight)) {
+    //         hitPoints.push_back(pos + (roots[i] * dir));
+    //     }
+    // }
+
+    // double topRoot = (cylinderHeight - pos[2]) / dir[2];
+    // Point3D topPoint = pos + (topRoot * dir);
+    // if (topRoot >= 0 && ((topPoint[0] * topPoint[0]) + (topPoint[1] * topPoint[1])) <= ((1 + EPSILON) * (1 + EPSILON))) {
+    //     hitPoints.push_back(topPoint);
+    // }
+
+    // double bottomRoot = (0 - pos[2]) / dir[2];
+    // Point3D bottomPoint = pos + (bottomRoot * dir);
+    // if (bottomRoot >= 0 && ((bottomPoint[0] * bottomPoint[0]) + (bottomPoint[1] * bottomPoint[1])) <= ((1 + EPSILON) * (1 + EPSILON))) {
+    //     hitPoints.push_back(bottomPoint);
+    // }
+
+    // Point3D closestPoint;
+    // double minDist = INFINITY;
+    // for (vector<Point3D>::iterator it = hitPoints.begin(); it != hitPoints.end(); it++) {
+    //     double distance = it->dist(pos);
+    //     if (distance < minDist) {
+    //         minDist = distance;
+    //         closestPoint = *it;
+    //     }
+    // }
+
+    // list<collision_result> hits;
+
+    // if (minDist == INFINITY) {
+    //     return hits;
+    // }
+
+    // collision_result hit;
+    // hit.point = closestPoint;
+
+    // if (epsilonEquals(hit.point[2], cylinderHeight)) {
+    //     hit.normal = Vector3D(0, 0, 1);
+    // } else if (epsilonEquals(hit.point[2], 0)) {
+    //     hit.normal = Vector3D(0, 0, -1);
+    // } else {
+    //     hit.normal = Vector3D(hit.point[0], hit.point[1], 0);
+    //     hit.normal.normalize();
+    // }
+
+    // if (debug) {
+    //     cerr << hit.point << endl;
+    //     cerr << hit.normal << endl;
+    // }
+
+    // hits.push_back(hit);
+
+    // if (debug) {
+    //     cerr << "===============================" << endl;
+    // }
+
+    // return hits;
 }
 
 list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhBox, const Point3D& pos, const Vector3D& dir) const {

@@ -12,5 +12,5 @@ bool printProgress = false;
 bool debug = false;
 int areaLightSampleDimension = 3;
 
-int debugX = 290;
-int debugY = 290;
+int debugX = 280;
+int debugY = 280;
