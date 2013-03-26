@@ -11,7 +11,7 @@ numLines=0
 while read line
 do
     ssh -n cm2chou@$line "nohup pkill rt -u cm2chou &"
-    ssh -n cm2chou@$line "nohup ./w > & ~/test1 &"
+    ssh -n cm2chou@$line "nohup a5/w > & ~/test1 &"
 done
 
 ./rt
