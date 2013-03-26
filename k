@@ -1,16 +1,10 @@
-ssh cm2chou@gl01 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl04 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl05 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl06 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl07 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl09 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl10 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl11 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl12 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl13 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl14 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl19 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl23 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl24 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl26 "nohup pkill rt -u cm2chou &"
-ssh cm2chou@gl27 "nohup pkill rt -u cm2chou &"
+#!/bin/sh
+fname="$HOME/a5/cs488_hosts"
+
+exec<$fname
+numLines=0
+
+while read line
+do
+    ssh -n cm2chou@$line "nohup pkill rt -u cm2chou &"
+done

@@ -1,3 +1,3 @@
 export RUN_TYPE=WORKER
-make
+cd ~/a5
 ./rt
