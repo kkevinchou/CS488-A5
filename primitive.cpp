@@ -26,6 +26,14 @@ Cylinder::~Cylinder()
 {
 }
 
+Cone::Cone()
+{
+}
+
+Cone::~Cone()
+{
+}
+
 Cube::Cube() : m_nonhierBox(Point3D(0, 0, 0), 1) {
 }
 

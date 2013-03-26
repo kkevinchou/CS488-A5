@@ -74,8 +74,11 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
                 break;
             }
             case Primitive::CYLINDER: {
-                Cylinder *cylinder = static_cast<Cylinder *>(g->get_primitive());
-                newHits = cylinderSolver(cylinder, tpos, tdir);
+                newHits = cylinderSolver(tpos, tdir);
+                break;
+            }
+            case Primitive::CONE: {
+                newHits = coneSolver(tpos, tdir);
                 break;
             }
             default:
@@ -154,7 +157,7 @@ bool epsilonEquals(double a, double b) {
     return abs(a - b) <= EPSILON;
 }
 
-list<collision_result> Collider::cylinderSolver(Cylinder *cylinder, const Point3D& pos, const Vector3D& dir) const {
+list<collision_result> Collider::cylinderSolver(const Point3D& pos, const Vector3D& dir) const {
     // From: http://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html#SECTION00023200000000000000
 
     if (dir[2] == 0) {
@@ -178,13 +181,12 @@ list<collision_result> Collider::cylinderSolver(Cylinder *cylinder, const Point3
         if (roots[i] < 0) continue;
         if (roots[i] > minRoot) continue;
 
-        minRoot = roots[i];
-
         Point3D hitPoint = pos + (roots[i] * dir);
         double hitX_2 = hitPoint[0] * hitPoint[0];
         double hitY_2 = hitPoint[1] * hitPoint[1];
 
         if (inRange(hitPoint[2], 0, cylinderHeight) && (hitX_2 + hitY_2 <= radius_2)) {
+            minRoot = roots[i];
             hitPoints.clear();
             hitPoints.push_back(pos + (roots[i] * dir));
         }
@@ -228,6 +230,85 @@ list<collision_result> Collider::cylinderSolver(Cylinder *cylinder, const Point3
     hit.point = closestPoint;
 
     if (epsilonEquals(hit.point[2], cylinderHeight)) {
+        hit.normal = Vector3D(0, 0, 1);
+    } else if (epsilonEquals(hit.point[2], 0)) {
+        hit.normal = Vector3D(0, 0, -1);
+    } else {
+        hit.normal = Vector3D(hit.point[0], hit.point[1], 0);
+        hit.normal.normalize();
+    }
+
+    hits.push_back(hit);
+    return hits;
+}
+
+list<collision_result> Collider::coneSolver(const Point3D& pos, const Vector3D& dir) const {
+    // From: http://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html#SECTION00023200000000000000
+
+    if (dir[2] == 0) {
+        list<collision_result> emptyResult;
+        return emptyResult;
+    }
+
+    double a = (dir[0] * dir[0]) + (dir[1] * dir[1]) - (dir[2] * dir[2]);
+    double b = (2 * pos[0] * dir[0]) + (2 * pos[1] * dir[1]) - (2 * pos[2] * dir[2]);
+    double c = (pos[0] * pos[0]) + (pos[1] * pos[1]) - (pos[2] * pos[2]);
+
+    double roots[2];
+    int quadResult = quadraticRoots(a, b, c, roots);
+
+    double coneHeight = 1.0;
+
+    vector<Point3D> hitPoints;
+    double minRoot = INFINITY;
+    for (int i = 0; i < quadResult; i++) {
+        if (roots[i] < 0) continue;
+        if (roots[i] > minRoot) continue;
+
+        Point3D hitPoint = pos + (roots[i] * dir);
+        double hitX_2 = hitPoint[0] * hitPoint[0];
+        double hitY_2 = hitPoint[1] * hitPoint[1];
+        double coneSliceRadius_2 = (hitPoint[2] + EPSILON) * (hitPoint[2] + EPSILON);
+
+        if (inRange(hitPoint[2], 0, coneHeight) && (hitX_2 + hitY_2 <= coneSliceRadius_2)) {
+            if (debug) {
+                cerr << "HIT POINT" << hitPoint << endl;
+            }
+            minRoot = roots[i];
+            hitPoints.clear();
+            hitPoints.push_back(pos + (roots[i] * dir));
+        }
+    }
+
+    double bottomRoot = (0 - pos[2]) / dir[2];
+    Point3D bottomPoint = pos + (bottomRoot * dir);
+    double bottomX_2 = bottomPoint[0] * bottomPoint[0];
+    double bottomY_2 = bottomPoint[1] * bottomPoint[1];
+
+    if ((bottomRoot >= 0) && (bottomX_2 + bottomY_2 <= (EPSILON * EPSILON))) {
+        hitPoints.push_back(bottomPoint);
+    }
+
+    Point3D closestPoint;
+    double minDist = INFINITY;
+    for (vector<Point3D>::iterator it = hitPoints.begin(); it != hitPoints.end(); it++) {
+        double distance = it->dist(pos);
+        if (distance < minDist) {
+            minDist = distance;
+            closestPoint = *it;
+        }
+    }
+
+    list<collision_result> hits;
+
+    if (minDist == INFINITY) {
+        return hits;
+    }
+
+    collision_result hit;
+    hit.point = closestPoint;
+
+    if (epsilonEquals(hit.point[2], coneHeight)) {
         hit.normal = Vector3D(0, 0, 1);
     } else if (epsilonEquals(hit.point[2], 0)) {
         hit.normal = Vector3D(0, 0, -1);

@@ -14,6 +14,7 @@ public:
     SPHERE,
     CUBE,
     CYLINDER,
+    CONE,
     UNDEFINED
   };
 
@@ -111,6 +112,16 @@ public:
 
   virtual Type get_type() const {
     return Primitive::CYLINDER;
+  }
+};
+
+class Cone : public Primitive {
+public:
+  Cone();
+  virtual ~Cone();
+
+  virtual Type get_type() const {
+    return Primitive::CONE;
   }
 };
 

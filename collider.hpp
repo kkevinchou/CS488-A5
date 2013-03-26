@@ -9,8 +9,6 @@
 
 using namespace std;
 
-
-
 struct collision_result {
     Point3D point;
     Vector3D normal;
@@ -22,7 +20,6 @@ struct collision_result {
         hitDistance = -1;
     }
 };
-
 
 class Collider {
 public:
@@ -39,7 +36,8 @@ private:
     list<collision_result> meshSolver(Mesh *mesh, const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> sphereSolver(Sphere *sphere, const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> cubeSolver(Cube *cube, const Point3D& pos, const Vector3D& dir) const;
-    list<collision_result> cylinderSolver(Cylinder *cylinder, const Point3D& pos, const Vector3D& dir) const;
+    list<collision_result> coneSolver(const Point3D& pos, const Vector3D& dir) const;
+    list<collision_result> cylinderSolver(const Point3D& pos, const Vector3D& dir) const;
 };
 
 #endif
