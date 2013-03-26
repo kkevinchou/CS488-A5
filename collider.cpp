@@ -271,9 +271,6 @@ list<collision_result> Collider::coneSolver(const Point3D& pos, const Vector3D& 
         double coneSliceRadius_2 = (hitPoint[2] + EPSILON) * (hitPoint[2] + EPSILON);
 
         if (inRange(hitPoint[2], 0, coneHeight) && (hitX_2 + hitY_2 <= coneSliceRadius_2)) {
-            if (debug) {
-                cerr << "HIT POINT" << hitPoint << endl;
-            }
             minRoot = roots[i];
             hitPoints.clear();
             hitPoints.push_back(pos + (roots[i] * dir));

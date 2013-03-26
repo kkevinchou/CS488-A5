@@ -1,0 +1,2 @@
+export RUN_TYPE=COORDINATOR
+./rt

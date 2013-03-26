@@ -5,16 +5,18 @@
 
 extern unsigned short port;
 extern Worker worker;
+
 extern bool superSampling;
 extern int sampleDimension;
-extern int maxRayRecursionDepth;
-extern double glossRadius;
-extern int numDistributedRays;
-extern double reflectionCoefficient;
+
+extern int reflectionMaxRayRecursionDepth;
+extern int reflectionNumDistributedRays;
+
 extern const double EPSILON;
 extern bool printProgress;
 extern bool debug;
 extern int areaLightSampleDimension;
+
 extern int debugX;
 extern int debugY;
 

@@ -10,7 +10,7 @@
 RayCaster::RayCaster(const Point3D& eye, const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient)
     : eye(eye), bg(bg), root(root), lights(lights), ambient(ambient), collider(root) {
 
-    maxRecursionDepth = maxRayRecursionDepth;
+    maxRecursionDepth = reflectionMaxRayRecursionDepth;
 }
 
 cast_result RayCaster::cast(const Point3D &pos, const Vector3D &dir) const {
@@ -138,7 +138,7 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
 
         int numHits = 0;
 
-        for (int i = 0; i < numDistributedRays; i++) {
+        for (int i = 0; i < reflectionNumDistributedRays; i++) {
             Vector3D stochasticDirection = perturbVector(reflectionDirection, glossiness);
             cast_result recursiveCast = recursiveColourCast(collisionPoint, stochasticDirection, recursionDepth + 1);
 
@@ -152,7 +152,6 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
             reflectionColour = (1.0 / numHits) * reflectionColour;
             finalColour = ((1 - reflectivity) * finalColour) + (reflectivity * reflectionColour);
         }
-
     }
 
     primaryCast.finalColour = finalColour + ambient * surfaceMaterial->get_diffuse();

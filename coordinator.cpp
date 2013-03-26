@@ -15,10 +15,18 @@ Coordinator::Coordinator(int width, int height, string filename) : width(width),
 
 vector<string> Coordinator::getWorkerHosts() {
     vector<string> hosts;
+    hosts.push_back("gl01");
+    hosts.push_back("gl04");
+    hosts.push_back("gl05");
+    hosts.push_back("gl06");
+    hosts.push_back("gl07");
+    hosts.push_back("gl09");
+    hosts.push_back("gl10");
+    hosts.push_back("gl11");
     hosts.push_back("gl12");
     hosts.push_back("gl13");
     hosts.push_back("gl14");
-    // hosts.push_back("gl19"); unlimit does not exist
+    hosts.push_back("gl19"); // unlimit does not exist
     hosts.push_back("gl23");
     hosts.push_back("gl24");
     hosts.push_back("gl25");
