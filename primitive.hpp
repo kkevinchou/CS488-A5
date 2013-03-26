@@ -13,6 +13,7 @@ public:
     MESH,
     SPHERE,
     CUBE,
+    CYLINDER,
     UNDEFINED
   };
 
@@ -100,6 +101,16 @@ public:
 
   virtual Type get_type() const {
     return Primitive::CUBE;
+  }
+};
+
+class Cylinder : public Primitive {
+public:
+  Cylinder();
+  virtual ~Cylinder();
+
+  virtual Type get_type() const {
+    return Primitive::CYLINDER;
   }
 };
 

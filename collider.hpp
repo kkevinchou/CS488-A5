@@ -36,9 +36,10 @@ private:
 
     list<collision_result> nonhierSphereSolver(NonhierSphere *nhSphere, const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> nonhierBoxSolver(NonhierBox *nhBox, const Point3D& pos, const Vector3D& dir) const;
-    list<collision_result> meshSolver(Mesh *mesh, const Point3D& pos, const Vector3D& dir, bool useAABB) const;
+    list<collision_result> meshSolver(Mesh *mesh, const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> sphereSolver(Sphere *sphere, const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> cubeSolver(Cube *cube, const Point3D& pos, const Vector3D& dir) const;
+    list<collision_result> cylinderSolver(Cylinder *cylinder, const Point3D& pos, const Vector3D& dir) const;
 };
 
 #endif

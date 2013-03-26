@@ -5,9 +5,12 @@ unsigned short port = 6090;
 Worker worker;
 bool superSampling = false;
 int sampleDimension = 4;
-int maxRayRecursionDepth = 1;
+int maxRayRecursionDepth = 0;
 int numDistributedRays = 1;
 double const EPSILON = 1.0e-8;
-bool printProgress = true;
+bool printProgress = false;
 bool debug = false;
-int areaLightSampleDimension = 4;
+int areaLightSampleDimension = 3;
+
+int debugX = 290;
+int debugY = 290;

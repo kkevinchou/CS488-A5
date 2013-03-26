@@ -15,5 +15,7 @@ extern const double EPSILON;
 extern bool printProgress;
 extern bool debug;
 extern int areaLightSampleDimension;
+extern int debugX;
+extern int debugY;
 
 #endif

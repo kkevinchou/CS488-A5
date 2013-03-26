@@ -253,6 +253,11 @@ Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, cons
         double energyIn = lightDotNormal;
         energyIn /= (falloff[0] + falloff[1] * sqrt(distSq) + falloff[2] * distSq);
 
+        // if (debug) {
+        //     cerr << "LIGHT DOT NORMAL " << lightDotNormal << endl;
+        //     cerr << "ENERGY IN " << energyIn << endl;
+        // }
+
         Vector3D r = (-1 * lightVec) + (2 * lightDotNormal * normal);
         r.normalize();
 
@@ -265,7 +270,7 @@ Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, cons
         Colour materialPropertiesColour = surfaceMaterial->get_diffuse();
 
         if (lightDotNormal > 0.0) {
-            materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, surfaceMaterial->get_shininess())) / normal.dot(lightVec) * surfaceMaterial->get_spec();
+            // materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, surfaceMaterial->get_shininess())) / normal.dot(lightVec) * surfaceMaterial->get_spec();
             colour = light->colour * materialPropertiesColour * energyIn;
         }
     }
