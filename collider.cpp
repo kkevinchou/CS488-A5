@@ -170,10 +170,10 @@ list<collision_result> Collider::cylinderSolver(Cylinder *cylinder, const Point3
     int quadResult = quadraticRoots(a, b, c, roots);
 
     double cylinderHeight = 1.0;
-    double minRoot = INFINITY;
     double radius_2 = 1.0 + EPSILON;
 
     vector<Point3D> hitPoints;
+    double minRoot = INFINITY;
     for (int i = 0; i < quadResult; i++) {
         if (roots[i] < 0) continue;
         if (roots[i] > minRoot) continue;
@@ -184,7 +184,7 @@ list<collision_result> Collider::cylinderSolver(Cylinder *cylinder, const Point3
         double hitX_2 = hitPoint[0] * hitPoint[0];
         double hitY_2 = hitPoint[1] * hitPoint[1];
 
-        if (inRange(hitPoint[2], 0, cylinderHeight) && (hitX_2 + hitY_2 <=radius_2)) {
+        if (inRange(hitPoint[2], 0, cylinderHeight) && (hitX_2 + hitY_2 <= radius_2)) {
             hitPoints.clear();
             hitPoints.push_back(pos + (roots[i] * dir));
         }
