@@ -310,11 +310,117 @@ list<collision_result> Collider::coneSolver(const Point3D& pos, const Vector3D& 
     } else if (epsilonEquals(hit.point[2], 0)) {
         hit.normal = Vector3D(0, 0, -1);
     } else {
-        hit.normal = Vector3D(hit.point[0], hit.point[1], 0);
+        double baseY = sqrt((coneHeight * coneHeight) - (hit.point[0] * hit.point[0]));
+        if (hit.point[1] < 0) {
+            baseY *= -1;
+        }
+
+        Point3D basePoint = Point3D(hit.point[0], baseY, coneHeight);
+        Vector3D baseToTopVec = Point3D(0, 0, 0) - basePoint;
+
+        hit.normal = Vector3D(-baseToTopVec[2], baseToTopVec[1], baseToTopVec[2]);
+        // hit.normal = Vector3D(hit.point[0], hit.point[1], 0);
+
+        if (debug) {
+            cerr << "BASE POINT " << basePoint << endl;
+            cerr << "BASE TO TOP VEC " << baseToTopVec << endl;
+            cerr << "NORMAL " << hit.normal << endl;
+        }
+
         hit.normal.normalize();
     }
 
     hits.push_back(hit);
+    return hits;
+}
+
+
+list<collision_result> Collider::torusSolver(const Point3D& pos, const Vector3D& dir) const {
+    // From: http://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html#SECTION00023200000000000000
+
+    // if (dir[2] == 0) {
+    //     list<collision_result> emptyResult;
+    //     return emptyResult;
+    // }
+
+    // double majorRadius = 1.0;
+    // double minorRadius = 1.0;
+
+    // double a = ;
+    // double b = (2 * pos[0] * dir[0]) + (2 * pos[1] * dir[1]);
+    // double c = (pos[0] * pos[0]) + (pos[1] * pos[1]) - 1;
+    // double d
+
+    // double roots[2];
+    // int quadResult = quadraticRoots(a, b, c, roots);
+
+    // double cylinderHeight = 1.0;
+    // double radius_2 = 1.0 + EPSILON;
+
+    // vector<Point3D> hitPoints;
+    // double minRoot = INFINITY;
+    // for (int i = 0; i < quadResult; i++) {
+    //     if (roots[i] < 0) continue;
+    //     if (roots[i] > minRoot) continue;
+
+    //     Point3D hitPoint = pos + (roots[i] * dir);
+    //     double hitX_2 = hitPoint[0] * hitPoint[0];
+    //     double hitY_2 = hitPoint[1] * hitPoint[1];
+
+    //     if (inRange(hitPoint[2], 0, cylinderHeight) && (hitX_2 + hitY_2 <= radius_2)) {
+    //         minRoot = roots[i];
+    //         hitPoints.clear();
+    //         hitPoints.push_back(pos + (roots[i] * dir));
+    //     }
+    // }
+
+    // double topRoot = (cylinderHeight - pos[2]) / dir[2];
+    // Point3D topPoint = pos + (topRoot * dir);
+    // double topX_2 = topPoint[0] * topPoint[0];
+    // double topY_2 = topPoint[1] * topPoint[1];
+
+    // if ((topRoot >= 0) && (topX_2 + topY_2 <= (1 + EPSILON))) {
+    //     hitPoints.push_back(topPoint);
+    // }
+
+    // double bottomRoot = (0 - pos[2]) / dir[2];
+    // Point3D bottomPoint = pos + (bottomRoot * dir);
+    // double bottomX_2 = bottomPoint[0] * bottomPoint[0];
+    // double bottomY_2 = bottomPoint[1] * bottomPoint[1];
+
+    // if ((bottomRoot >= 0) && (bottomX_2 + bottomY_2 <= (1 + EPSILON))) {
+    //     hitPoints.push_back(bottomPoint);
+    // }
+
+    // Point3D closestPoint;
+    // double minDist = INFINITY;
+    // for (vector<Point3D>::iterator it = hitPoints.begin(); it != hitPoints.end(); it++) {
+    //     double distance = it->dist(pos);
+    //     if (distance < minDist) {
+    //         minDist = distance;
+    //         closestPoint = *it;
+    //     }
+    // }
+
+    list<collision_result> hits;
+
+    // if (minDist == INFINITY) {
+    //     return hits;
+    // }
+
+    // collision_result hit;
+    // hit.point = closestPoint;
+
+    // if (epsilonEquals(hit.point[2], cylinderHeight)) {
+    //     hit.normal = Vector3D(0, 0, 1);
+    // } else if (epsilonEquals(hit.point[2], 0)) {
+    //     hit.normal = Vector3D(0, 0, -1);
+    // } else {
+    //     hit.normal = Vector3D(hit.point[0], hit.point[1], 0);
+    //     hit.normal.normalize();
+    // }
+
+    // hits.push_back(hit);
     return hits;
 }
 
