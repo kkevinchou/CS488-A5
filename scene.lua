@@ -13,10 +13,10 @@ scene_root = gr.node('root')
 cornell = gr.node('cornell-box')
 scene_root:add_child(cornell)
 
-cone = gr.cone('cone')
-cone:translate(0, 0.5, -5)
--- cone:rotate('x', 45)
+cone = gr.torus('cone')
+cone:translate(0, 0, -5)
 -- cone:rotate('y', 90)
+cone:rotate('x', 90)
 cone:set_material(blue)
 cornell:add_child(cone)
 

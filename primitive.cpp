@@ -34,6 +34,14 @@ Cone::~Cone()
 {
 }
 
+Torus::Torus()
+{
+}
+
+Torus::~Torus()
+{
+}
+
 Cube::Cube() : m_nonhierBox(Point3D(0, 0, 0), 1) {
 }
 

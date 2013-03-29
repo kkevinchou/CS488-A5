@@ -15,6 +15,7 @@ public:
     CUBE,
     CYLINDER,
     CONE,
+    TORUS,
     UNDEFINED
   };
 
@@ -122,6 +123,16 @@ public:
 
   virtual Type get_type() const {
     return Primitive::CONE;
+  }
+};
+
+class Torus : public Primitive {
+public:
+  Torus();
+  virtual ~Torus();
+
+  virtual Type get_type() const {
+    return Primitive::TORUS;
   }
 };
 
