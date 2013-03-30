@@ -460,6 +460,41 @@ int gr_material_cmd(lua_State* L)
   return 1;
 }
 
+// Create a texture material
+extern "C"
+int gr_texture_material_cmd(lua_State* L)
+{
+  GRLUA_DEBUG_CALL;
+
+  gr_material_ud* data = (gr_material_ud*)lua_newuserdata(L, sizeof(gr_material_ud));
+  data->material = 0;
+
+  double ks[3];
+  const char* fileName = luaL_checkstring(L, 1);
+  get_tuple(L, 2, ks, 3);
+
+  double shininess = luaL_checknumber(L, 3);
+
+  double glossiness = 0;
+  double reflectivity = 0;
+
+  if (!lua_isuserdata(L, 4)) {
+    glossiness = luaL_checknumber(L, 4);
+    if (!lua_isuserdata(L, 5)) {
+      reflectivity = luaL_checknumber(L, 5);
+    }
+  }
+
+  data->material = new TextureMaterial(fileName,
+                                     Colour(ks[0], ks[1], ks[2]),
+                                     shininess, glossiness, reflectivity);
+
+  luaL_newmetatable(L, "gr.material");
+  lua_setmetatable(L, -2);
+
+  return 1;
+}
+
 // Add a child to a node
 extern "C"
 int gr_node_add_child_cmd(lua_State* L)
@@ -614,6 +649,7 @@ static const luaL_reg grlib_functions[] = {
   {"cylinder", gr_cylinder_cmd},
   {"cone", gr_cone_cmd},
   {"torus", gr_torus_cmd},
+  {"texture_material", gr_texture_material_cmd},
   {0, 0}
 };
 

@@ -146,14 +146,36 @@ list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhSphere, co
         hit.normal = (hit.point - nhSphere->get_position());
         hit.normal.normalize();
 
+        hit.textureCoordinates = calculateSphereTextureCoordinates(hit.point, nhSphere->get_position());
+
         hits.push_back(hit);
     }
 
     return hits;
 }
 
+Point2D Collider::calculateSphereTextureCoordinates(Point3D point, Point3D center) const {
+    Vector3D upVec = Vector3D(0, 1, 0);
+    Vector3D sideVec = Vector3D(0, 0, 1);
+
+    Vector3D pointVec = point - center;
+    pointVec.normalize();
+
+    double angle1 = pointVec.angleBetween(upVec);
+    double angle2 = pointVec.angleBetween(sideVec);
+
+    if (point[0] < 0) {
+        angle1 += M_PI;
+    }
+
+    if (point[2] < 0) {
+        angle2 += M_PI;
+    }
+
+    return Point2D(angle1 / M_PI / 2, angle2 / M_PI / 2);
+}
+
 bool inRange(double checkValue, double min, double max) {
-    // return (checkValue <= range1 && checkValue >= range2) || (checkValue <= range2 && checkValue >= range1);
     return (checkValue <= max && checkValue >= min);
 }
 
@@ -313,7 +335,7 @@ list<collision_result> Collider::coneSolver(const Point3D& pos, const Vector3D& 
     } else if (epsilonEquals(hit.point[2], 0)) {
         hit.normal = Vector3D(0, 0, -1);
     } else {
-        Vector3D topToBase = hit.point - Point3D(0, 0, 0);
+        Vector3D topToBase = hit.point - Point3D();
         topToBase.normalize();
 
         Point3D centerPoint = Point3D(0, 0, hit.point[2]);
@@ -350,14 +372,14 @@ list<collision_result> Collider::torusSolver(const Point3D& pos, const Vector3D&
     double dirZSq = dir[2] * dir[2];
     double posZSq = pos[2] * pos[2];
 
-    double a = dirDotDir * dirDotDir;
-    double b = 4 * dirDotDir * posDotDir;
-    double c = 4 * posDotDir * posDotDir + 2 * dirDotDir * (posDotPos - minorRadiusSq - majorRadiusSq) + 4 * majorRadiusSq * dirZSq;
-    double d = 4 * posDotDir * (posDotPos - minorRadiusSq - majorRadiusSq) + 8 * majorRadiusSq * pos[2] * dir[2];
-    double e = (posDotPos - minorRadiusSq - majorRadiusSq) * (posDotPos - minorRadiusSq - majorRadiusSq) + 4 * majorRadiusSq * posZSq - 4 * majorRadiusSq * minorRadiusSq;
+    // double a = dirDotDir * dirDotDir;
+    double a = 4 * dirDotDir * posDotDir;
+    double b = 4 * posDotDir * posDotDir + 2 * dirDotDir * (posDotPos - minorRadiusSq - majorRadiusSq) + 4 * majorRadiusSq * dirZSq;
+    double c = 4 * posDotDir * (posDotPos - minorRadiusSq - majorRadiusSq) + 8 * majorRadiusSq * pos[2] * dir[2];
+    double d = (posDotPos - minorRadiusSq - majorRadiusSq) * (posDotPos - minorRadiusSq - majorRadiusSq) + 4 * majorRadiusSq * posZSq - 4 * majorRadiusSq * minorRadiusSq;
 
     double roots[4];
-    int quarticResult = quarticRoots(b, c, d, e, roots);
+    int quarticResult = quarticRoots(a, b, c, d, roots);
 
     vector<Point3D> hitPoints;
     double minRoot = INFINITY;
@@ -376,7 +398,14 @@ list<collision_result> Collider::torusSolver(const Point3D& pos, const Vector3D&
     if (minRoot != INFINITY) {
         collision_result hit;
         hit.point = closestPoint;
-        hit.normal = Vector3D(0, 1, 0);
+
+        Point3D center;
+
+        double y = (hit.point - center).dot(Vector3D(0, 0, 1));
+        Vector3D D = (hit.point - center) - y * Vector3D(0, 0, 1);
+        Vector3D X = (1 / sqrt(D.dot(D))) * majorRadius * D;
+
+        hit.normal = hit.point - center - X;
         hits.push_back(hit);
     }
 

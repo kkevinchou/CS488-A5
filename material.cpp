@@ -13,7 +13,10 @@ PhongMaterial::~PhongMaterial()
 {
 }
 
-void PhongMaterial::apply_gl() const
+TextureMaterial::TextureMaterial(const string& textureFile, const Colour& ks, double shininess, double glossiness, double reflectivity)
+  : textureFile(textureFile), PhongMaterial(Colour(), ks, shininess, glossiness, reflectivity) {
+}
+
+TextureMaterial::~TextureMaterial()
 {
-  // Perform OpenGL calls necessary to set up this material.
 }

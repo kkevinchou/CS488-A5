@@ -1,5 +1,7 @@
 -- A simple scene with some miscellaneous geometry.
 
+test_material = gr.texture_material("MEOWZA", {0.5, 0.4, 0.8}, 100, 0.06, 0.55)
+
 off_white_reflective = gr.material({0.85, 0.8, 0.85}, {0.5, 0.4, 0.8}, 100, 0.06, 0.55)
 off_white = gr.material({0.85, 0.8, 0.85}, {0.5, 0.4, 0.8}, 100)
 green = gr.material({0.3, 0.6, 0.3}, {0.5, 0.7, 0.5}, 100)
@@ -13,12 +15,12 @@ scene_root = gr.node('root')
 cornell = gr.node('cornell-box')
 scene_root:add_child(cornell)
 
-cone = gr.torus('cone')
-cone:translate(0, 0, -5)
--- cone:rotate('y', 90)
-cone:rotate('x', 90)
-cone:set_material(blue)
-cornell:add_child(cone)
+sphere = gr.sphere('sphere')
+sphere:translate(0, 0, -5)
+-- sphere:rotate('y', 90)
+-- sphere:rotate('x', 45)
+sphere:set_material(blue)
+cornell:add_child(sphere)
 
 white_light = gr.light({-100.0, 150.0, 400.0}, {0.9, 0.9, 0.9}, {1, 0, 0})
 orange_light = gr.light({400.0, 100.0, 150.0}, {0.7, 0.0, 0.7}, {1, 0, 0})

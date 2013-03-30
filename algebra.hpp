@@ -166,6 +166,11 @@ public:
     return sqrt(length2());
   }
 
+  double angleBetween(const Vector3D& other) const
+  {
+    return acos(this->dot(other) / this->length() / other.length());
+  }
+
   double normalize();
 
   Vector3D cross(const Vector3D& other) const

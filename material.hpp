@@ -3,10 +3,13 @@
 
 #include "algebra.hpp"
 
+#include <string>
+
+using namespace std;
+
 class Material {
 public:
   virtual ~Material();
-  virtual void apply_gl() const = 0;
 
 protected:
   Material()
@@ -19,9 +22,7 @@ public:
   PhongMaterial(const Colour& kd, const Colour& ks, double shininess, double glossiness, double reflectivity);
   virtual ~PhongMaterial();
 
-  virtual void apply_gl() const;
-
-  Colour get_diffuse() const {
+  virtual Colour get_diffuse() const {
     return m_kd;
   }
 
@@ -44,7 +45,7 @@ public:
   double is_reflective() const {
     return m_reflectivity > 0;
   }
-private:
+protected:
   Colour m_kd;
   Colour m_ks;
 
@@ -53,5 +54,17 @@ private:
   double m_reflectivity;
 };
 
+class TextureMaterial : public PhongMaterial {
+public:
+  TextureMaterial(const string& textureFile, const Colour& ks, double shininess, double glossiness, double reflectivity);
+  virtual ~TextureMaterial();
+
+  Colour get_diffuse() const {
+    return Colour(0);
+  }
+private:
+  string textureFile;
+
+};
 
 #endif
