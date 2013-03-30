@@ -45,6 +45,7 @@
 #include "light.hpp"
 #include "a4.hpp"
 #include "mesh.hpp"
+#include "globals.hpp"
 
 // Uncomment the following line to enable debugging messages
 // #define GRLUA_ENABLE_DEBUG
@@ -485,6 +486,7 @@ int gr_texture_material_cmd(lua_State* L)
     }
   }
 
+  textureManager.load(fileName);
   data->material = new TextureMaterial(fileName,
                                      Colour(ks[0], ks[1], ks[2]),
                                      shininess, glossiness, reflectivity);

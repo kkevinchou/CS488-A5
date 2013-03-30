@@ -93,6 +93,7 @@ list<collision_result> Collider::getCollisionData(const Point3D& pos, const Vect
         const PhongMaterial *surfaceMaterial = static_cast<const PhongMaterial *>(g->get_material());
         for (list<collision_result>::iterator it = newHits.begin(); it != newHits.end(); ++it) {
             it->surfaceMaterial = surfaceMaterial;
+            it->surfaceMaterial->set_texture_coordinates(it->textureCoordinates);
         }
 
         allHits.insert(allHits.end(), newHits.begin(), newHits.end());

@@ -2,6 +2,9 @@
 #define GLOBALS_HPP
 
 #include "worker.hpp"
+#include "texturemanager.hpp"
+
+extern TextureManager textureManager;
 
 extern unsigned short port;
 extern Worker worker;

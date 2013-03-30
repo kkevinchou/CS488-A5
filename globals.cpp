@@ -3,6 +3,7 @@
 
 unsigned short port = 6090;
 Worker worker;
+TextureManager textureManager;
 
 bool superSampling = false;
 int sampleDimension = 4;

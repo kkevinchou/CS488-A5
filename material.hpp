@@ -45,6 +45,10 @@ public:
   double is_reflective() const {
     return m_reflectivity > 0;
   }
+
+  void set_texture_coordinates(const Point2D &textureCoordinates) {
+    this->textureCoordinates = textureCoordinates;
+  }
 protected:
   Colour m_kd;
   Colour m_ks;
@@ -52,6 +56,8 @@ protected:
   double m_shininess;
   double m_glossiness;
   double m_reflectivity;
+
+  Point2D textureCoordinates;
 };
 
 class TextureMaterial : public PhongMaterial {
@@ -60,7 +66,8 @@ public:
   virtual ~TextureMaterial();
 
   Colour get_diffuse() const {
-    return Colour(0);
+    return Colour();
+    // return textureManager.getTextureColour(textureFile, textureCoordinates);
   }
 private:
   string textureFile;
