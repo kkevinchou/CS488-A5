@@ -154,7 +154,9 @@ cast_result RayCaster::recursiveColourCast(const Point3D &pos, const Vector3D &d
         }
     }
 
-    primaryCast.finalColour = finalColour + ambient * surfaceMaterial->get_diffuse();
+    Colour ambientColour = surfaceMaterial->isTexture() ? surfaceMaterial->get_texture_colour(primaryCast.collisionResult.textureCoordinates): surfaceMaterial->get_diffuse();
+
+    primaryCast.finalColour = finalColour + ambient * ambientColour;
 
     return primaryCast;
 }
@@ -190,7 +192,8 @@ Colour RayCaster::calculateColourFromPointLight(struct cast_result primaryCast, 
         double rDotEye = max(r.dot(eyeVec), 0.0);
 
         const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
-        Colour materialPropertiesColour = surfaceMaterial->get_diffuse();
+
+        Colour materialPropertiesColour = surfaceMaterial->isTexture() ? surfaceMaterial->get_texture_colour(primaryCast.collisionResult.textureCoordinates): surfaceMaterial->get_diffuse();
 
         if (lightDotNormal > 0.0) {
             materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, surfaceMaterial->get_shininess())) / normal.dot(lightVec) * surfaceMaterial->get_spec();
@@ -266,7 +269,7 @@ Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, cons
         double rDotEye = max(r.dot(eyeVec), 0.0);
 
         const PhongMaterial *surfaceMaterial = primaryCast.collisionResult.surfaceMaterial;
-        Colour materialPropertiesColour = surfaceMaterial->get_diffuse();
+        Colour materialPropertiesColour = surfaceMaterial->isTexture() ? surfaceMaterial->get_texture_colour(primaryCast.collisionResult.textureCoordinates): surfaceMaterial->get_diffuse();
 
         if (lightDotNormal > 0.0) {
             // materialPropertiesColour = materialPropertiesColour + (pow(rDotEye, surfaceMaterial->get_shininess())) / normal.dot(lightVec) * surfaceMaterial->get_spec();

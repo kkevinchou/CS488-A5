@@ -22,8 +22,13 @@ public:
   PhongMaterial(const Colour& kd, const Colour& ks, double shininess, double glossiness, double reflectivity);
   virtual ~PhongMaterial();
 
-  virtual Colour get_diffuse() const {
+  Colour get_diffuse() const {
     return m_kd;
+  }
+
+  virtual Colour get_texture_colour(const Point2D &textureCoordinates) const {
+    cerr << "ERROR, called get_texture_colour on non-texture material" << endl;
+    return Colour();
   }
 
   Colour get_spec() const {
@@ -46,8 +51,8 @@ public:
     return m_reflectivity > 0;
   }
 
-  void set_texture_coordinates(const Point2D &textureCoordinates) {
-    this->textureCoordinates = textureCoordinates;
+  virtual bool isTexture() const {
+    return false;
   }
 protected:
   Colour m_kd;
@@ -56,8 +61,6 @@ protected:
   double m_shininess;
   double m_glossiness;
   double m_reflectivity;
-
-  Point2D textureCoordinates;
 };
 
 class TextureMaterial : public PhongMaterial {
@@ -65,9 +68,10 @@ public:
   TextureMaterial(const string& textureFile, const Colour& ks, double shininess, double glossiness, double reflectivity);
   virtual ~TextureMaterial();
 
-  Colour get_diffuse() const {
-    return Colour();
-    // return textureManager.getTextureColour(textureFile, textureCoordinates);
+  virtual Colour get_texture_colour(const Point2D &textureCoordinates) const;
+
+  virtual bool isTexture() const {
+    return true;
   }
 private:
   string textureFile;

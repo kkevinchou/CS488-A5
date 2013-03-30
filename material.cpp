@@ -1,4 +1,6 @@
 #include "material.hpp"
+#include "globals.hpp"
+#include "texturemanager.hpp"
 
 Material::~Material()
 {
@@ -14,9 +16,13 @@ PhongMaterial::~PhongMaterial()
 }
 
 TextureMaterial::TextureMaterial(const string& textureFile, const Colour& ks, double shininess, double glossiness, double reflectivity)
-  : textureFile(textureFile), PhongMaterial(Colour(), ks, shininess, glossiness, reflectivity) {
+  : PhongMaterial(Colour(), ks, shininess, glossiness, reflectivity), textureFile(textureFile) {
 }
 
 TextureMaterial::~TextureMaterial()
 {
+}
+
+Colour TextureMaterial::get_texture_colour(const Point2D &textureCoordinates) const {
+    return textureManager.getTextureColour(textureFile, textureCoordinates);
 }
