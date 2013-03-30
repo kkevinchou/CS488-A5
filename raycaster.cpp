@@ -227,23 +227,6 @@ Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, cons
 
     castResult = cast(position, shadowCastDirection);
 
-    // if (debug) {
-    //     cerr << "LIGHT POSITION " << samplePosition << endl;
-    //     cerr << "LIGHT DISTANCE " << samplePosition.dist(position) << endl;
-    //     cerr << "START POSITION " << position << endl;
-    //     cerr << "SHADOW CAST DIRECTION " << shadowCastDirection << endl;
-    // }
-
-    // if (debug) {
-    //     if (castResult.hit) {
-    //         cerr << "HIT POSITION " << castResult.collisionResult.point << endl;
-    //         cerr << "HIT DISTANCE " << castResult.collisionResult.hitDistance << endl;
-    //         cerr << "HIT NORMAL " << castResult.collisionResult.normal << endl;
-    //     } else {
-    //         cerr << "MISS!" << endl;
-    //     }
-    // }
-
     if (!castResult.hit || samplePosition.dist(position) < castResult.collisionResult.hitDistance) {
         double distSq = position.distSq(samplePosition);
         Vector3D lightVec = samplePosition - position;
@@ -254,11 +237,6 @@ Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, cons
         const double *falloff = light->falloff;
         double energyIn = lightDotNormal;
         energyIn /= (falloff[0] + falloff[1] * sqrt(distSq) + falloff[2] * distSq);
-
-        // if (debug) {
-        //     cerr << "LIGHT DOT NORMAL " << lightDotNormal << endl;
-        //     cerr << "ENERGY IN " << energyIn << endl;
-        // }
 
         Vector3D r = (-1 * lightVec) + (2 * lightDotNormal * normal);
         r.normalize();
@@ -277,32 +255,10 @@ Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, cons
         }
     }
 
-    // if (debug) {
-    //     cerr << "COLOUR " << colour << endl;
-    //     cerr << "==================================================" << endl;
-    // }
-
     return colour;
 }
 
 Colour RayCaster::shadeFromLight(struct cast_result primaryCast, const Light *light) const {
-    // if (debug) {
-    //     cerr << "LIGHT POSITION " << light->position << endl;
-    //     cerr << "LIGHT DISTANCE " << light->position.dist(position) << endl;
-    //     cerr << "START POSITION " << primaryCast.collisionResult.point << endl;
-    //     cerr << "SHADOW CAST DIRECTION " << shadowCastDirection << endl;
-    // }
-
-    // if (debug) {
-    //     if (castResult.hit) {
-    //         cerr << "HIT POSITION " << castResult.collisionResult.point << endl;
-    //         cerr << "HIT DISTANCE " << castResult.collisionResult.hitDistance << endl;
-    //         cerr << "HIT NORMAL " << castResult.collisionResult.normal << endl;
-    //     } else {
-    //         cerr << "MISS!" << endl;
-    //     }
-    // }
-
     Colour colourFromLight(0);
 
     if (light->isAreaLight) {

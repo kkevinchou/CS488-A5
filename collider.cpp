@@ -122,9 +122,12 @@ list<collision_result> Collider::cubeSolver(Cube *cube, const Point3D& pos, cons
 }
 
 list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhSphere, const Point3D& pos, const Vector3D& dir) const {
+    Point3D center = nhSphere->get_position();
+    double radius = nhSphere->get_radius();
+
     double a = dir.dot(dir);
     double b = (pos - nhSphere->get_position()).dot(dir) * 2;
-    double c = (pos - nhSphere->get_position()).dot(pos - nhSphere->get_position()) - (nhSphere->get_radius() * nhSphere->get_radius());
+    double c = (pos - nhSphere->get_position()).dot(pos - center) - (radius * radius);
 
     double roots[2];
     int quadResult = quadraticRoots(a, b, c, roots);
@@ -146,33 +149,14 @@ list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhSphere, co
         hit.normal = (hit.point - nhSphere->get_position());
         hit.normal.normalize();
 
-        hit.textureCoordinates = calculateSphereTextureCoordinates(hit.point, nhSphere->get_position());
+        double u = (atan2(hit.point[2] - center[2], hit.point[0] - center[0])) / 2 / M_PI;
+        double v = acos((hit.point[1] - center[1]) / radius) / M_PI;
+        hit.textureCoordinates = Point2D(u, v);
 
         hits.push_back(hit);
     }
 
     return hits;
-}
-
-Point2D Collider::calculateSphereTextureCoordinates(Point3D point, Point3D center) const {
-    Vector3D upVec = Vector3D(0, 1, 0);
-    Vector3D sideVec = Vector3D(0, 0, 1);
-
-    Vector3D pointVec = point - center;
-    pointVec.normalize();
-
-    double angle1 = pointVec.angleBetween(upVec);
-    double angle2 = pointVec.angleBetween(sideVec);
-
-    if (point[0] < 0) {
-        angle1 += M_PI;
-    }
-
-    if (point[2] < 0) {
-        angle2 += M_PI;
-    }
-
-    return Point2D(angle1 / M_PI / 2, angle2 / M_PI / 2);
 }
 
 bool inRange(double checkValue, double min, double max) {

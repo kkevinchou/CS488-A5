@@ -40,8 +40,6 @@ private:
     list<collision_result> coneSolver(const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> torusSolver(const Point3D& pos, const Vector3D& dir) const;
     list<collision_result> cylinderSolver(const Point3D& pos, const Vector3D& dir) const;
-
-    Point2D calculateSphereTextureCoordinates(Point3D point, Point3D center) const;
 };
 
 #endif
