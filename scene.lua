@@ -18,7 +18,7 @@ scene_root:add_child(cornell)
 s1 = gr.cube('s1')
 s1:translate(0, 0, -3)
 s1:rotate('y', -45)
-s1:rotate('x', 45)
+s1:rotate('x', -45)
 s1:set_material(tex_mat1)
 cornell:add_child(s1)
 

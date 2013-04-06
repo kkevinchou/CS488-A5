@@ -469,16 +469,16 @@ list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhBox, const Point
 
     if (hit.normal[2] == 1) { // Front Face
         u = (hit.point[0] - boxPosition[0]) / size;
-        v = (hit.point[1] - boxPosition[1]) / size;
+        v = (1.0 - (hit.point[1] - boxPosition[1])) / size;
     } else if (hit.normal[2] == -1) { // Back Face
-        u = (1 - (hit.point[0] - boxPosition[0])) / size;
-        v = (hit.point[1] - boxPosition[1]) / size;
+        u = (1.0 - (hit.point[0] - boxPosition[0])) / size;
+        v = (1.0 - (hit.point[1] - boxPosition[1])) / size;
     } else if (hit.normal[0] == 1) { // Right Face
-        u = (1 - (hit.point[2] - boxPosition[2])) / size;
-        v = (hit.point[1] - boxPosition[1]) / size;
+        u = (1.0 - (hit.point[2] - boxPosition[2])) / size;
+        v = (1.0 - (hit.point[1] - boxPosition[1])) / size;
     } else if (hit.normal[0] == -1) { // Left Face
         u = (hit.point[2] - boxPosition[2]) / size;
-        v = (hit.point[1] - boxPosition[1]) / size;
+        v = (1.0 - (hit.point[1] - boxPosition[1])) / size;
     } else if (hit.normal[1] == 1) { // Top Face
         u = (hit.point[0] - boxPosition[0]) / size;
         v = (hit.point[2] - boxPosition[2]) / size;
