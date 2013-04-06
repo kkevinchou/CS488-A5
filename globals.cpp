@@ -12,10 +12,10 @@ int reflectionMaxRayRecursionDepth = 2;
 int reflectionNumDistributedRays = 1;
 
 double const EPSILON = 1.0e-8;
-bool printProgress = false;
-bool debug = false;
+bool printProgress = true;
+bool debug = true;
 int areaLightSampleDimension = 10;
 
 // int debugX = 242;
-int debugX = 250;
-int debugY = 250;
+int debugX = 300;
+int debugY = 230;

@@ -149,7 +149,7 @@ list<collision_result> Collider::nonhierSphereSolver(NonhierSphere *nhSphere, co
         hit.normal = (hit.point - nhSphere->get_position());
         hit.normal.normalize();
 
-        double u = (atan2(hit.point[2] - center[2], hit.point[0] - center[0])) / 2 / M_PI;
+        double u = (atan2(hit.point[2] - center[2], hit.point[0] - center[0]) + M_PI) / 2 / M_PI;
         double v = acos((hit.point[1] - center[1]) / radius) / M_PI;
         hit.textureCoordinates = Point2D(u, v);
 
@@ -241,11 +241,20 @@ list<collision_result> Collider::cylinderSolver(const Point3D& pos, const Vector
 
     if (epsilonEquals(hit.point[2], cylinderHeight)) {
         hit.normal = Vector3D(0, 0, 1);
+        double u = (1.0 - hit.point[0]) / 2;
+        double v = (1.0 - hit.point[1]) / 2;
+        hit.textureCoordinates = Point2D(u, v);
     } else if (epsilonEquals(hit.point[2], 0)) {
         hit.normal = Vector3D(0, 0, -1);
+        double u = (1.0 - hit.point[0]) / 2;
+        double v = (1.0 - hit.point[1]) / 2;
+        hit.textureCoordinates = Point2D(u, v);
     } else {
         hit.normal = Vector3D(hit.point[0], hit.point[1], 0);
         hit.normal.normalize();
+        double u = (1.0 - hit.point[0]) / 2;
+        double v = hit.point[2];
+        hit.textureCoordinates = Point2D(u, v);
     }
 
     hits.push_back(hit);
@@ -316,8 +325,13 @@ list<collision_result> Collider::coneSolver(const Point3D& pos, const Vector3D& 
 
     if (epsilonEquals(hit.point[2], coneHeight)) {
         hit.normal = Vector3D(0, 0, 1);
+
+        double u = (1.0 - hit.point[0]) / 2;
+        double v = (1.0 - hit.point[1]) / 2;
+        hit.textureCoordinates = Point2D(u, v);
     } else if (epsilonEquals(hit.point[2], 0)) {
         hit.normal = Vector3D(0, 0, -1);
+        hit.textureCoordinates = Point2D(0.5, 0);
     } else {
         Vector3D topToBase = hit.point - Point3D();
         topToBase.normalize();
@@ -329,13 +343,16 @@ list<collision_result> Collider::coneSolver(const Point3D& pos, const Vector3D& 
 
         hit.normal = coneTangent.cross(topToBase);
         hit.normal.normalize();
+
+        double u = (atan2(hit.point[1], hit.point[0]) + M_PI) / 2 / M_PI;
+        double v = hit.point[2];
+        hit.textureCoordinates = Point2D(u, v);
     }
 
     list<collision_result> hits;
     hits.push_back(hit);
     return hits;
 }
-
 
 list<collision_result> Collider::torusSolver(const Point3D& pos, const Vector3D& dir) const {
     // From: http://www.emeyex.com/site/projects/raytorus.pdf
@@ -346,7 +363,7 @@ list<collision_result> Collider::torusSolver(const Point3D& pos, const Vector3D&
     }
 
     double majorRadius = 2.0;
-    double minorRadius = 0.5;
+    double minorRadius = 1.0;
 
     double dirDotDir = dir.dot(dir);
     double posDotDir = pos[0] * dir[0] + pos[1] * dir[1] + pos[2] * dir[2];
@@ -390,6 +407,17 @@ list<collision_result> Collider::torusSolver(const Point3D& pos, const Vector3D&
         Vector3D X = (1 / sqrt(D.dot(D))) * majorRadius * D;
 
         hit.normal = hit.point - center - X;
+
+        // texture coords
+        double u = (atan2(hit.point[1], hit.point[0]) + M_PI) / 2 / M_PI;
+
+        Vector3D circleOriginDir = Vector3D(hit.point[0], hit.point[1], 0);
+        circleOriginDir.normalize();
+        Point3D circleOriginPoint = Point3D() + (majorRadius * circleOriginDir);
+        double v = (atan2(hit.point[2] - circleOriginPoint[2], hit.point[0] - hit.point[0]) + M_PI) / 2 / M_PI;
+
+        hit.textureCoordinates = Point2D(u, v);
+
         hits.push_back(hit);
     }
 
@@ -421,14 +449,12 @@ list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhBox, const Point
         if (t1 > tMin) {
             tMin = t1;
 
-            if (i == 0) {
-                hit.normal = Vector3D(-dir[0], 0, 0);
-            } else if (i == 1) {
-                hit.normal = Vector3D(0, -dir[1], 0);
-            } else if (i == 2) {
-                hit.normal = Vector3D(0, 0, -dir[2]);
+            hit.normal = Vector3D();
+
+            hit.normal[i] = 1;
+            if (-dir[i] < 0) {
+                hit.normal[i] *= -1;
             }
-            hit.normal.normalize();
         }
 
         if ((tMin > tMax) || tMax < 0) {
@@ -437,6 +463,31 @@ list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhBox, const Point
     }
 
     hit.point = pos + (tMin - EPSILON) * dir;
+
+    // Texture coordinates
+    double u, v;
+
+    if (hit.normal[2] == 1) { // Front Face
+        u = (hit.point[0] - boxPosition[0]) / size;
+        v = (hit.point[1] - boxPosition[1]) / size;
+    } else if (hit.normal[2] == -1) { // Back Face
+        u = (1 - (hit.point[0] - boxPosition[0])) / size;
+        v = (hit.point[1] - boxPosition[1]) / size;
+    } else if (hit.normal[0] == 1) { // Right Face
+        u = (1 - (hit.point[2] - boxPosition[2])) / size;
+        v = (hit.point[1] - boxPosition[1]) / size;
+    } else if (hit.normal[0] == -1) { // Left Face
+        u = (hit.point[2] - boxPosition[2]) / size;
+        v = (hit.point[1] - boxPosition[1]) / size;
+    } else if (hit.normal[1] == 1) { // Top Face
+        u = (hit.point[0] - boxPosition[0]) / size;
+        v = (hit.point[2] - boxPosition[2]) / size;
+    } else if (hit.normal[1] == -1) { // Bottom Face
+        u = (hit.point[0] - boxPosition[0]) / size;
+        v = (1 - (hit.point[2] - boxPosition[2])) / size;
+    }
+    hit.textureCoordinates = Point2D(u, v);
+
     hits.push_back(hit);
 
     return hits;
