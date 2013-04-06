@@ -32,7 +32,11 @@ void a4_render(// What to render
     }
 
     if (runType == "WORKER") {
-        worker.setParams(root, filename, width, height, eye, view, up, fov, ambient, lights);
+        Point3D mEye = Point3D(eye[0], eye[1], eye[2]);
+        Vector3D mView = Vector3D(view[0], view[1], view[2]);
+        Vector3D mUp = Vector3D(up[0], up[1], up[2]);
+
+        worker.setParams(root, filename, width, height, mEye, mView, mUp, fov, ambient, lights);
         worker.wait();
     } else if (runType == "COORDINATOR") {
         Coordinator c(width, height, filename);

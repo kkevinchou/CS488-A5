@@ -485,7 +485,10 @@ list<collision_result> Collider::nonhierBoxSolver(NonhierBox *nhBox, const Point
     } else if (hit.normal[1] == -1) { // Bottom Face
         u = (hit.point[0] - boxPosition[0]) / size;
         v = (1 - (hit.point[2] - boxPosition[2])) / size;
+    } else {
+        u = v = 0;
     }
+
     hit.textureCoordinates = Point2D(u, v);
 
     hits.push_back(hit);

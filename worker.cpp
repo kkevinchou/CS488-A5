@@ -5,6 +5,27 @@ extern unsigned short port;
 extern bool superSampling;
 extern int sampleDimension;
 
+void Worker::setParams(// What to render
+               SceneNode* root,
+               // Where to output the image
+               const std::string& filename,
+               // Image size
+               int width, int height,
+               // Viewing parameters
+               const Point3D& eye, const Vector3D& view,
+               const Vector3D& up, double fov,
+               // Lighting parameters
+               const Colour& ambient,
+               const list<Light*>& lights) {
+    if (this->r != NULL) {
+        delete this->r;
+    }
+
+    this->width = width;
+    this->height = height;
+    this->r = new Renderer(root, filename, width, height, eye, view, up, fov, ambient, lights);
+}
+
 static void *testMethod(void *args) {
     struct worker_thread_args *worker_args = (struct worker_thread_args *)args;
 
@@ -147,27 +168,6 @@ void Worker::accept() {
     }
 
     coordSocketFd = acceptConnection(localSocketFd);
-}
-
-void Worker::setParams(// What to render
-               SceneNode* root,
-               // Where to output the image
-               const std::string& filename,
-               // Image size
-               int width, int height,
-               // Viewing parameters
-               const Point3D& eye, const Vector3D& view,
-               const Vector3D& up, double fov,
-               // Lighting parameters
-               const Colour& ambient,
-               const list<Light*>& lights) {
-    if (this->r != NULL) {
-        delete this->r;
-    }
-
-    this->width = width;
-    this->height = height;
-    this->r = new Renderer(root, filename, width, height, eye, view, up, fov, ambient, lights);
 }
 
 Worker::Worker() {
