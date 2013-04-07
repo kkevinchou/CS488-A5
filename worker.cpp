@@ -1,5 +1,6 @@
 #include "worker.hpp"
 #include "a4.hpp"
+#include "globals.hpp"
 
 extern unsigned short port;
 extern bool superSampling;
@@ -12,8 +13,7 @@ void Worker::setParams(// What to render
                // Image size
                int width, int height,
                // Viewing parameters
-               const Point3D& eye, const Vector3D& view,
-               const Vector3D& up, double fov,
+               double fov,
                // Lighting parameters
                const Colour& ambient,
                const list<Light*>& lights) {
@@ -23,7 +23,15 @@ void Worker::setParams(// What to render
 
     this->width = width;
     this->height = height;
-    this->r = new Renderer(root, filename, width, height, eye, view, up, fov, ambient, lights);
+    this->r = new Renderer(root, filename, width, height, fov, ambient, lights);
+
+    // calculate new eye positions
+
+    double startTime = 0.0;
+    double endTime = animLength;
+    Vector3D moveVec = Vector3D(0, 0, -0.25); // per second
+
+    moveVecPerFrame =  (1.0 / (endTime - startTime)) * (1.0 / fps) * moveVec;
 }
 
 static void *testMethod(void *args) {
@@ -82,11 +90,19 @@ int Worker::handleRequest(queue<double> &inData) {
         inData.push(d);
     }
 
-    if (inData.size() >= 2) {
+    if (inData.size() >= 3) {
+        int frameNumber = (int)inData.front();
+        inData.pop();
         int column = (int)inData.front();
         inData.pop();
         int numWorkers = (int)inData.front();
         inData.pop();
+
+        cerr << "BEFORE " << mEye << endl;
+        cerr << "FRAME NUMBER " << frameNumber << endl;
+        cerr << "MOVE VEC PER FRAME " << moveVecPerFrame << endl;
+        mEye = mEye + ((double)frameNumber * moveVecPerFrame);
+        cerr << "AFTER " << mEye << endl;
 
         WorkPool workPool;
         for (int i = column; i < this->width; i += numWorkers) {
@@ -134,6 +150,7 @@ void Worker::wait() {
     bool computationDone = false;
 
     while (!computationDone) {
+    // while (true) {
         memcpy(&working_set, &master_set, sizeof(master_set));
         int selectResult = select(coordSocketFd + 1, &working_set, NULL, NULL, NULL);
 

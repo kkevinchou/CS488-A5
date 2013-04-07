@@ -26,8 +26,8 @@ struct cast_result {
 
 class RayCaster {
 public:
-    RayCaster(const Point3D& eye, const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient);
-    cast_result colourCast(const Point3D &pos, const Vector3D &dir) const;
+    RayCaster(const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient);
+    cast_result colourCast(const Point3D &pos, const Vector3D &dir);
 
 private:
     Colour shade(struct cast_result primaryCast) const;
@@ -40,7 +40,6 @@ private:
     Vector3D perturbVector(const Vector3D &dir, double circleRadius) const;
 
     cast_result cast(const Point3D &pos, const Vector3D &dir) const;
-    const Point3D &eye;
     const Background &bg;
     const SceneNode *root;
     const list<Light *> &lights;
@@ -48,6 +47,8 @@ private:
     Collider collider;
 
     int maxRecursionDepth;
+
+    Point3D localEye;
 };
 
 #endif

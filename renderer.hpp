@@ -16,13 +16,12 @@ public:
                // Image size
                int width, int height,
                // Viewing parameters
-               const Point3D& eye, const Vector3D& view,
-               const Vector3D& up, double fov,
+               double fov,
                // Lighting parameters
                const Colour& ambient,
                const list<Light*>& lights);
 
-     vector<double> render(int x, int y, bool superSampling = false, int sampleDimension = 2) const;
+     vector<double> render(int x, int y, bool superSampling = false, int sampleDimension = 2);
 private:
      SceneNode* root;
      // Where to output the image
@@ -31,16 +30,10 @@ private:
      int width;
      int height;
      // Viewing parameters
-     const Point3D& eye;
-     const Vector3D& view;
-     const Vector3D& up;
      double fov;
      // Lighting parameters
      const Colour& ambient;
      const std::list<Light*>& lights;
-     Vector3D m_view;
-     Vector3D m_up;
-     Vector3D m_side;
      Background bg;
      RayCaster rayCaster;
 };

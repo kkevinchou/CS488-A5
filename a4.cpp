@@ -31,19 +31,20 @@ void a4_render(// What to render
         runType = string(run_type);
     }
 
-    if (runType == "WORKER") {
-        Point3D mEye = Point3D(eye[0], eye[1], eye[2]);
-        Vector3D mView = Vector3D(view[0], view[1], view[2]);
-        Vector3D mUp = Vector3D(up[0], up[1], up[2]);
+    mEye = eye;
+    mView = view;
+    mUp = up;
+    mSide = mView.cross(mUp);
 
-        worker.setParams(root, filename, width, height, mEye, mView, mUp, fov, ambient, lights);
+    if (runType == "WORKER") {
+        worker.setParams(root, filename, width, height, fov, ambient, lights);
         worker.wait();
     } else if (runType == "COORDINATOR") {
         Coordinator c(width, height, filename);
         c.dispatchWorkers();
     } else {
         Image img(width, height, 3);
-        Renderer r(root, filename, width, height, eye, view, up, fov, ambient, lights);
+        Renderer r(root, filename, width, height, fov, ambient, lights);
 
         int percentage = 0;
         clock_t t = clock();

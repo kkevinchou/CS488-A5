@@ -8,8 +8,7 @@ Renderer::Renderer(// What to render
                // Image size
                int width, int height,
                // Viewing parameters
-               const Point3D& eye, const Vector3D& view,
-               const Vector3D& up, double fov,
+               double fov,
                // Lighting parameters
                const Colour& ambient,
                const list<Light*> &lights)
@@ -17,19 +16,14 @@ Renderer::Renderer(// What to render
 filename(filename),
 width(width),
 height(height),
-eye(eye),
-view(view),
-up(up), fov(fov),
+fov(fov),
 ambient(ambient),
 lights(lights),
 bg(width, height),
-rayCaster(eye, bg, root, lights, ambient) {
-    m_view = view;
-    m_up = up;
-    m_side = view.cross(up);
+rayCaster(bg, root, lights, ambient) {
 }
 
-vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDimension) const {
+vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDimension) {
     Vector3D dir;
     Colour c(0);
 
@@ -37,14 +31,14 @@ vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDime
         dir = (x / ((double)width) * 2 - 1) *
             tan(fov/2 * M_PI/180.0) *
             ((double)width / (double)height) *
-            m_side + (y / (double)height * 2 - 1) *
+            mSide + (y / (double)height * 2 - 1) *
             tan(fov/2 * M_PI/180.0) *
-            -m_up + m_view;
+            -mUp + mView;
 
         if (x == debugX && y == debugY) {
             debug = true;
         }
-        cast_result cr = rayCaster.colourCast(eye, dir);
+        cast_result cr = rayCaster.colourCast(mEye, dir);
 
         c = (cr.hit) ? cr.finalColour : bg.getPixelColour(x, y);
     } else {
@@ -53,16 +47,16 @@ vector<double> Renderer::render(int x, int y, bool superSampling, int sampleDime
                 dir = ( (x + i/(double)sampleDimension) / ((double)width) * 2 - 1 ) *
                     tan( fov * M_PI / 360.0 ) *
                     ( (double)width / (double)height ) *
-                    m_side + ( (y + j/(double)sampleDimension) / (double)height * 2 - 1 ) *
+                    mSide + ( (y + j/(double)sampleDimension) / (double)height * 2 - 1 ) *
                     tan( fov * M_PI / 360.0 ) *
-                    -m_up + m_view;
+                    -mUp + mView;
                 dir.normalize();
 
                 if (x == debugX && y == debugY) {
                     debug = true;
                 }
 
-                cast_result cr = rayCaster.colourCast(eye, dir);
+                cast_result cr = rayCaster.colourCast(mEye, dir);
                 c = (cr.hit) ? c + cr.finalColour : c + bg.getPixelColour(x, y);
             }
         }

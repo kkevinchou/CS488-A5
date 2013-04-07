@@ -2,6 +2,7 @@
 #define GLOBALS_HPP
 
 #include "worker.hpp"
+#include "algebra.hpp"
 #include "texturemanager.hpp"
 
 extern TextureManager textureManager;
@@ -22,5 +23,14 @@ extern int areaLightSampleDimension;
 
 extern int debugX;
 extern int debugY;
+
+extern Point3D mEye;
+extern Vector3D mView;
+extern Vector3D mUp;
+extern Vector3D mSide;
+
+extern double animLength;
+extern int fps;
+extern Vector3D moveVecPerFrame;
 
 #endif

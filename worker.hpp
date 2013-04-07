@@ -42,8 +42,7 @@ public:
                // Image size
                int width, int height,
                // Viewing parameters
-               const Point3D& eye, const Vector3D& view,
-               const Vector3D& up, double fov,
+               double fov,
                // Lighting parameters
                const Colour& ambient,
                const list<Light*>& lights);

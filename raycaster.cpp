@@ -7,8 +7,8 @@
 
 #define PI 3.141592
 
-RayCaster::RayCaster(const Point3D& eye, const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient)
-    : eye(eye), bg(bg), root(root), lights(lights), ambient(ambient), collider(root) {
+RayCaster::RayCaster(const Background& bg, const SceneNode *root, const list<Light *> &lights, const Colour &ambient)
+    : bg(bg), root(root), lights(lights), ambient(ambient), collider(root) {
 
     maxRecursionDepth = reflectionMaxRayRecursionDepth;
 }
@@ -56,7 +56,8 @@ cast_result RayCaster::cast(const Point3D &pos, const Vector3D &dir) const {
 
 extern bool debug;
 
-cast_result RayCaster::colourCast(const Point3D &pos, const Vector3D &dir) const {
+cast_result RayCaster::colourCast(const Point3D &pos, const Vector3D &dir) {
+    localEye = pos;
     cast_result result = recursiveColourCast(pos, dir, 0);
 
     if (debug) {
@@ -186,7 +187,7 @@ Colour RayCaster::calculateColourFromPointLight(struct cast_result primaryCast, 
         Vector3D r = (-1 * lightVec) + (2 * lightDotNormal * normal);
         r.normalize();
 
-        Vector3D eyeVec = eye - position;
+        Vector3D eyeVec = localEye - position;
         eyeVec.normalize();
 
         double rDotEye = max(r.dot(eyeVec), 0.0);
@@ -241,7 +242,7 @@ Colour RayCaster::sampleColourFromAreaLight(struct cast_result primaryCast, cons
         Vector3D r = (-1 * lightVec) + (2 * lightDotNormal * normal);
         r.normalize();
 
-        Vector3D eyeVec = eye - position;
+        Vector3D eyeVec = localEye - position;
         eyeVec.normalize();
 
         double rDotEye = max(r.dot(eyeVec), 0.0);

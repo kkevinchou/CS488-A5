@@ -20,6 +20,8 @@ private:
     string filename;
     Image img;
 
+    int currentFrameNumber;
+
     vector<string> getWorkerHosts();
     void distributeWork(vector<int> &workerFds);
     int readPixelData(int workerFd);

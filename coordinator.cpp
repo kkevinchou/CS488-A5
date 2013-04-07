@@ -4,8 +4,12 @@
 #include "worker.hpp"
 #include "dist.hpp"
 #include "renderer.hpp"
+#include "globals.hpp"
 #include <ctime>
 #include <iomanip>
+#include <sstream>
+#include <cstdlib>
+#include <sys/stat.h>
 
 extern unsigned short port;
 
@@ -131,48 +135,84 @@ void Coordinator::waitForResults(fd_set &master_set, int max_fd) {
 
     cerr << setprecision(2) << "Completed in " << mins << "m, " << secs << "s, " << millis << "ms" << endl;
 
-    img.savePng(filename);
+    ostringstream oss;
+
+    string frameString;
+
+    if (currentFrameNumber < 10) {
+        ostringstream oss2;
+        oss2 << "000" << currentFrameNumber;
+        frameString = oss2.str();
+    } else if (currentFrameNumber < 100) {
+        ostringstream oss2;
+        oss2 << "00" << currentFrameNumber;
+        frameString = oss2.str();
+    } else if (currentFrameNumber < 1000) {
+        ostringstream oss2;
+        oss2 << "0" << currentFrameNumber;
+        frameString = oss2.str();
+    } else if (currentFrameNumber < 10000) {
+        ostringstream oss2;
+        oss2 << currentFrameNumber;
+        frameString = oss2.str();
+    }
+
+    string folderName = "frames";
+
+    ostringstream oss2;
+    oss2 << "exec rm -rf " << folderName;
+    system(oss2.str().c_str());
+    mkdir(folderName.c_str(), S_IRWXU);
+
+    oss << folderName << "/" << filename.substr(0, filename.length() - 4) << frameString << ".png";
+    img.savePng(oss.str());
 }
 
 void Coordinator::distributeWork(vector<int> &workerFds) {
     int numWorkers = (int)workerFds.size();
 
     for (int i = 0; i < numWorkers; i++) {
+        sendDouble(workerFds[i], (double)currentFrameNumber);
         sendDouble(workerFds[i], (double)i);
         sendDouble(workerFds[i], (double)numWorkers);
     }
 }
 
 void Coordinator::dispatchWorkers() {
-    cerr << "COORDINATOR - DISPATCHING WORKERS" << endl;
-    int max_fd = 0;
-    fd_set master_set;
-    FD_ZERO(&master_set);
+    int numFrames = animLength * fps;
 
-    vector<int> workerFds;
-    vector<string> workerHosts = getWorkerHosts();
+    for (int k = 0; k < numFrames; k++) {
+        cerr << "COORDINATOR - DISPATCHING WORKERS" << endl;
+        int max_fd = 0;
+        fd_set master_set;
+        FD_ZERO(&master_set);
 
-    if (workerHosts.size() == 0) {
-        cerr << "No workers available... terminating" << endl;
-        return;
-    }
+        vector<int> workerFds;
+        vector<string> workerHosts = getWorkerHosts();
 
-    for (unsigned int i = 0; i < workerHosts.size(); i++) {
-        int workerFd = setupSocketAndReturnDescriptor(workerHosts[i].c_str(), port);
-        if (workerFd < 0) {
-            cerr << "Connection failed for host: " << workerHosts[i] << endl;
-            continue;
+        if (workerHosts.size() == 0) {
+            cerr << "No workers available... terminating" << endl;
+            return;
         }
 
-        workerFds.push_back(workerFd);
-        FD_SET(workerFd, &master_set);
-        max_fd = max(max_fd, workerFd);
-    }
+        for (unsigned int i = 0; i < workerHosts.size(); i++) {
+            int workerFd = setupSocketAndReturnDescriptor(workerHosts[i].c_str(), port);
+            if (workerFd < 0) {
+                // cerr << "Connection failed for host: " << workerHosts[i] << endl;
+                continue;
+            }
 
-    if (workerFds.size() == 0) {
-        return;
-    }
+            workerFds.push_back(workerFd);
+            FD_SET(workerFd, &master_set);
+            max_fd = max(max_fd, workerFd);
+        }
 
-    distributeWork(workerFds);
-    waitForResults(master_set, max_fd);
+        if (workerFds.size() == 0) {
+            return;
+        }
+
+        currentFrameNumber = k;
+        distributeWork(workerFds);
+        waitForResults(master_set, max_fd);
+    }
 }
