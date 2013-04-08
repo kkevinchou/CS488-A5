@@ -2,7 +2,7 @@
 #include "algebra.hpp"
 #include "globals.hpp"
 
-unsigned short port = 6090;
+unsigned short port = 6092;
 Worker worker;
 TextureManager textureManager;
 

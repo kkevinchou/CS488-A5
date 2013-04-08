@@ -39,23 +39,23 @@ c4:scale(5, 1, 4)
 c4:set_material(off_white)
 plane:add_child(c4)
 
--- c5 = gr.cube('back1')
--- c5:translate(-2.5, -0.5, 0)
--- c5:scale(2, 1, 0.1)
--- c5:set_material(off_white)
--- plane:add_child(c5)
+c5 = gr.cube('back1')
+c5:translate(-2.5, -0.5, 0)
+c5:scale(2, 1, 0.1)
+c5:set_material(off_white)
+plane:add_child(c5)
 
--- crate1 = gr.cube('crate1')
--- crate1:translate(-1.2, -0.5, 0.1)
--- crate1:scale(0.4, 0.3, 0.3)
--- crate1:set_material(blue)
--- plane:add_child(crate1)
+crate1 = gr.cube('crate1')
+crate1:translate(-1.2, -0.5, 0.1)
+crate1:scale(0.4, 0.3, 0.3)
+crate1:set_material(blue)
+plane:add_child(crate1)
 
--- life_saver = gr.torus('life_saver')
--- life_saver:translate(-1, 0.2, 0.1)
--- life_saver:scale(0.1, 0.1, 0.1)
--- life_saver:set_material(green)
--- plane:add_child(life_saver)
+life_saver = gr.torus('life_saver')
+life_saver:translate(-1, 0.2, 0.1)
+life_saver:scale(0.1, 0.1, 0.1)
+life_saver:set_material(green)
+plane:add_child(life_saver)
 
 -----------------------------------------------------------
 -- WINDOW WALL
@@ -147,8 +147,8 @@ box_light = gr.light({0, 0, 1}, {0.9, 0.9, 0.9}, {1, 0, 0})
 --    {0.0, 0.0, 0.0}, {box_light})
 
 t1 = gr.tween('translate', 0, 1, {0, 0, 2.1})
-t2 = gr.tween('rotate', 0, 1, {45, 0, 0})
+t2 = gr.tween('rotate', 0, 1, {-0.4, 0, -1})
 
 gr.render(scene_root, 'scene.png', 500, 500,
       {0, 0, 2.3}, {0.4, 0, -1}, {0, 1, 0}, 50,
-      {0.25, 0.25, 0.25}, {box_light}, {t1})
+      {0.25, 0.25, 0.25}, {box_light}, {t2})

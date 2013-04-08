@@ -22,12 +22,7 @@ void Tween::init() {
         // cerr << "TWEEN DELTA " << tweenDelta << endl;
     }
     else if (type == Tween::ROTATE) {
-        Vector3D rotVec = target - Point3D();
-
-        double xRot = target[0];
-        double yRot = target[1];
-        double zRot = target[2];
-
+        Vector3D rotVec = target - Point3D(mView[0], mView[1], mView[2]);
         tweenDelta = (1.0 / (endTime - startTime)) * (1.0 / fps) * rotVec;
     }
 }

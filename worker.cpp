@@ -98,9 +98,8 @@ int Worker::handleRequest(queue<double> &inData) {
         int numWorkers = (int)inData.front();
         inData.pop();
 
-        // cerr << "BEFORE " << mEye << endl;
+        // cerr << "BEFORE " << mView << endl;
         // cerr << "FRAME NUMBER " << frameNumber << endl;
-        // cerr << "MOVE VEC PER FRAME " << moveVecPerFrame << endl;
 
         for (list<Tween*>::iterator it = mTweens.begin(); it != mTweens.end(); it++) {
             Tween* tween = *it;
@@ -113,13 +112,13 @@ int Worker::handleRequest(queue<double> &inData) {
                     mEye = mEye + translateDelta;
                 } else if (tween->type == Tween::ROTATE) {
                     Vector3D rotateDelta = tween->getTweenDelta(frameNumber);
-                    // cerr << "translateDelta " << translateDelta << endl;
-                    mEye = mEye + translateDelta;
+                    mView = mView + rotateDelta;
+                    mSide = mView.cross(mUp);
                 }
             }
         }
 
-        // cerr << "AFTER " << mEye << endl;
+        // cerr << "AFTER " << mView << endl;
 
         WorkPool workPool;
         for (int i = column; i < this->width; i += numWorkers) {
