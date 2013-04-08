@@ -158,9 +158,9 @@ void Coordinator::waitForResults(fd_set &master_set, int max_fd) {
 
     string folderName = "frames";
 
-    ostringstream oss2;
-    oss2 << "exec rm -rf " << folderName;
-    system(oss2.str().c_str());
+    // ostringstream oss2;
+    // oss2 << "exec rm -rf " << folderName;
+    // system(oss2.str().c_str());
     mkdir(folderName.c_str(), S_IRWXU);
 
     oss << folderName << "/" << filename.substr(0, filename.length() - 4) << frameString << ".png";
@@ -178,9 +178,9 @@ void Coordinator::distributeWork(vector<int> &workerFds) {
 }
 
 void Coordinator::dispatchWorkers() {
-    int numFrames = animLength * fps;
+    int numFrames = animLength * fps + 1;
 
-    for (int k = 0; k < numFrames; k++) {
+    for (int k = 9; k < numFrames; k++) {
         cerr << "COORDINATOR - DISPATCHING WORKERS" << endl;
         int max_fd = 0;
         fd_set master_set;

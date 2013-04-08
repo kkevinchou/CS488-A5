@@ -6,6 +6,7 @@
 #include "scene.hpp"
 #include "light.hpp"
 #include "raycaster.hpp"
+#include "tween.hpp"
 
 using namespace std;
 
@@ -20,7 +21,8 @@ void a4_render(// What to render
                const Vector3D& up, double fov,
                // Lighting parameters
                const Colour& ambient,
-               const std::list<Light*>& lights
+               const std::list<Light*>& lights,
+               list<Tween*>& tweens
                );
 
 

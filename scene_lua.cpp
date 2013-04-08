@@ -45,6 +45,7 @@
 #include "light.hpp"
 #include "a4.hpp"
 #include "mesh.hpp"
+#include "tween.hpp"
 #include "globals.hpp"
 
 // Uncomment the following line to enable debugging messages
@@ -87,6 +88,12 @@ struct gr_material_ud {
 // allocated by Lua to represent lights.
 struct gr_light_ud {
   Light* light;
+};
+
+// The "userdata" type for a tween. Objects of this type will be
+// allocated by Lua to represent tweens.
+struct gr_tween_ud {
+  Tween* tween;
 };
 
 // Useful function to retrieve and check an n-tuple of numbers.
@@ -378,6 +385,42 @@ int gr_light_cmd(lua_State* L)
   return 1;
 }
 
+// Make a tween
+extern "C"
+int gr_tween_cmd(lua_State* L)
+{
+  GRLUA_DEBUG_CALL;
+
+  gr_tween_ud* data = (gr_tween_ud*)lua_newuserdata(L, sizeof(gr_tween_ud));
+  data->tween = 0;
+
+  const char* type = luaL_checkstring(L, 1);
+  string str_type(type);
+
+  Tween::Type tween_type;
+
+  if (str_type == "translate") {
+    tween_type = Tween::TRANSLATE;
+  } else if (str_type == "rotate") {
+    tween_type = Tween::ROTATE;
+  } else if (str_type == "jump") {
+    tween_type = Tween::JUMP;
+  }
+
+  double startTime = luaL_checknumber(L, 2);
+  double endTime = luaL_checknumber(L, 3);
+
+  Point3D target;
+  get_tuple(L, 4, &target[0], 3);
+
+  data->tween = new Tween(tween_type, startTime, endTime, target);
+
+  luaL_newmetatable(L, "gr.tween");
+  lua_setmetatable(L, -2);
+
+  return 1;
+}
+
 // Render a scene
 extern "C"
 int gr_render_cmd(lua_State* L)
@@ -419,9 +462,23 @@ int gr_render_cmd(lua_State* L)
     lua_pop(L, 1);
   }
 
+  luaL_checktype(L, 11, LUA_TTABLE);
+  int tween_count = luaL_getn(L, 11);
+
+  luaL_argcheck(L, tween_count >= 0, 11, "Tuple of tweens expected");
+  std::list<Tween*> tweens;
+  for (int i = 1; i <= tween_count; i++) {
+    lua_rawgeti(L, 11, i);
+    gr_tween_ud* tdata = (gr_tween_ud*)luaL_checkudata(L, -1, "gr.tween");
+    luaL_argcheck(L, tdata != 0, 11, "Tween expected");
+
+    tweens.push_back(tdata->tween);
+    lua_pop(L, 1);
+  }
+
   a4_render(root->node, filename, width, height,
             eye, view, up, fov,
-            ambient, lights);
+            ambient, lights, tweens);
 
   return 0;
 }
@@ -652,6 +709,7 @@ static const luaL_reg grlib_functions[] = {
   {"cone", gr_cone_cmd},
   {"torus", gr_torus_cmd},
   {"texture_material", gr_texture_material_cmd},
+  {"tween", gr_tween_cmd},
   {0, 0}
 };
 

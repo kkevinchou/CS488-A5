@@ -19,7 +19,8 @@ void a4_render(// What to render
                const Vector3D& up, double fov,
                // Lighting parameters
                const Colour& ambient,
-               const list<Light*>& lights
+               const list<Light*>& lights,
+               list<Tween*>& tweens
                )
 {
     char * run_type = getenv ("RUN_TYPE");
@@ -35,6 +36,12 @@ void a4_render(// What to render
     mView = view;
     mUp = up;
     mSide = mView.cross(mUp);
+
+    mTweens.clear();
+    for (list<Tween*>::iterator it = tweens.begin(); it != tweens.end(); it++) {
+        (*it)->init();
+        mTweens.push_back(*it);
+    }
 
     if (runType == "WORKER") {
         worker.setParams(root, filename, width, height, fov, ambient, lights);

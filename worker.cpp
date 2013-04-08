@@ -27,11 +27,11 @@ void Worker::setParams(// What to render
 
     // calculate new eye positions
 
-    double startTime = 0.0;
-    double endTime = animLength;
-    Vector3D moveVec = Vector3D(0, 0, -0.25); // per second
+    // double startTime = 0.0;
+    // double endTime = animLength;
+    // Vector3D moveVec = Vector3D(0, 0, -0.25); // per second
 
-    moveVecPerFrame =  (1.0 / (endTime - startTime)) * (1.0 / fps) * moveVec;
+    // moveVecPerFrame =  (1.0 / (endTime - startTime)) * (1.0 / fps) * moveVec;
 }
 
 static void *testMethod(void *args) {
@@ -98,11 +98,28 @@ int Worker::handleRequest(queue<double> &inData) {
         int numWorkers = (int)inData.front();
         inData.pop();
 
-        cerr << "BEFORE " << mEye << endl;
-        cerr << "FRAME NUMBER " << frameNumber << endl;
-        cerr << "MOVE VEC PER FRAME " << moveVecPerFrame << endl;
-        mEye = mEye + ((double)frameNumber * moveVecPerFrame);
-        cerr << "AFTER " << mEye << endl;
+        // cerr << "BEFORE " << mEye << endl;
+        // cerr << "FRAME NUMBER " << frameNumber << endl;
+        // cerr << "MOVE VEC PER FRAME " << moveVecPerFrame << endl;
+
+        for (list<Tween*>::iterator it = mTweens.begin(); it != mTweens.end(); it++) {
+            Tween* tween = *it;
+            // cerr << "FRAME NUMBER1 " << frameNumber << endl;
+            if (tween->frameIsAffected(frameNumber)) {
+                // cerr << "FRAME NUMBER2 " << frameNumber << endl;
+                if (tween->type == Tween::TRANSLATE) {
+                    Vector3D translateDelta = tween->getTweenDelta(frameNumber);
+                    // cerr << "translateDelta " << translateDelta << endl;
+                    mEye = mEye + translateDelta;
+                } else if (tween->type == Tween::ROTATE) {
+                    Vector3D rotateDelta = tween->getTweenDelta(frameNumber);
+                    // cerr << "translateDelta " << translateDelta << endl;
+                    mEye = mEye + translateDelta;
+                }
+            }
+        }
+
+        // cerr << "AFTER " << mEye << endl;
 
         WorkPool workPool;
         for (int i = column; i < this->width; i += numWorkers) {

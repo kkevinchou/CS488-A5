@@ -10,12 +10,12 @@ bool superSampling = false;
 int sampleDimension = 4;
 
 int reflectionMaxRayRecursionDepth = 1;
-int reflectionNumDistributedRays = 10;
+int reflectionNumDistributedRays = 1;
 
 double const EPSILON = 1.0e-8;
 bool printProgress = true;
 bool debug = false;
-int areaLightSampleDimension = 10;
+int areaLightSampleDimension = 1;
 
 // int debugX = 242;
 int debugX = 300;
@@ -25,7 +25,9 @@ Point3D mEye;
 Vector3D mView;
 Vector3D mUp;
 Vector3D mSide;
+list<Tween*> mTweens;
 
 double animLength = 1.0;
-int fps = 1;
+int fps = 30;
 Vector3D moveVecPerFrame;
+
