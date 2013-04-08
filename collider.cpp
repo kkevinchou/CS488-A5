@@ -362,8 +362,8 @@ list<collision_result> Collider::torusSolver(const Point3D& pos, const Vector3D&
         return emptyResult;
     }
 
-    double majorRadius = 2.0;
-    double minorRadius = 1.0;
+    double majorRadius = 1.0;
+    double minorRadius = 0.5;
 
     double dirDotDir = dir.dot(dir);
     double posDotDir = pos[0] * dir[0] + pos[1] * dir[1] + pos[2] * dir[2];

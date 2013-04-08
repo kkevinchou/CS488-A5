@@ -9,8 +9,8 @@ TextureManager textureManager;
 bool superSampling = false;
 int sampleDimension = 4;
 
-int reflectionMaxRayRecursionDepth = 2;
-int reflectionNumDistributedRays = 1;
+int reflectionMaxRayRecursionDepth = 1;
+int reflectionNumDistributedRays = 10;
 
 double const EPSILON = 1.0e-8;
 bool printProgress = true;
