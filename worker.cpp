@@ -103,22 +103,23 @@ int Worker::handleRequest(queue<double> &inData) {
 
         for (list<Tween*>::iterator it = mTweens.begin(); it != mTweens.end(); it++) {
             Tween* tween = *it;
+            tween->init();
             // cerr << "FRAME NUMBER1 " << frameNumber << endl;
-            if (tween->frameIsAffected(frameNumber)) {
                 // cerr << "FRAME NUMBER2 " << frameNumber << endl;
-                if (tween->type == Tween::TRANSLATE) {
-                    Vector3D translateDelta = tween->getTweenDelta(frameNumber);
-                    // cerr << "translateDelta " << translateDelta << endl;
-                    mEye = mEye + translateDelta;
-                } else if (tween->type == Tween::ROTATE) {
-                    Vector3D rotateDelta = tween->getTweenDelta(frameNumber);
-                    mView = mView + rotateDelta;
-                    mSide = mView.cross(mUp);
-                }
+            if (tween->type == Tween::TRANSLATE) {
+                Vector3D translateDelta = tween->getTweenDelta(frameNumber);
+                // cerr << "translateDelta " << translateDelta << endl;
+                mEye = mEye + translateDelta;
+            } else if (tween->type == Tween::ROTATE) {
+                // cerr << "BEFORE " << mView << endl;
+                Vector3D rotateDelta = tween->getTweenDelta(frameNumber);
+                // cerr << "DELTA " << rotateDelta << endl;
+                mView = mView + rotateDelta;
+                mSide = mView.cross(mUp);
+                // cerr << "AFTER " << mView << endl;
             }
         }
 
-        // cerr << "AFTER " << mView << endl;
 
         WorkPool workPool;
         for (int i = column; i < this->width; i += numWorkers) {

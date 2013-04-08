@@ -7,15 +7,15 @@ Worker worker;
 TextureManager textureManager;
 
 bool superSampling = false;
-int sampleDimension = 4;
+int sampleDimension = 1;
 
 int reflectionMaxRayRecursionDepth = 1;
-int reflectionNumDistributedRays = 1;
+int reflectionNumDistributedRays = 3;
 
 double const EPSILON = 1.0e-8;
 bool printProgress = true;
 bool debug = false;
-int areaLightSampleDimension = 1;
+int areaLightSampleDimension = 3;
 
 // int debugX = 242;
 int debugX = 300;
@@ -27,7 +27,5 @@ Vector3D mUp;
 Vector3D mSide;
 list<Tween*> mTweens;
 
-double animLength = 1.0;
-int fps = 30;
-Vector3D moveVecPerFrame;
-
+double animLength = 0;
+int fps = 0;

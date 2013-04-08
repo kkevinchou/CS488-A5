@@ -13,7 +13,6 @@ do
 
     if [ $hostLength -eq 4 ]
     then
-		ssh -n cm2chou@$line "nohup unlimit cputime &"
         ssh -n cm2chou@$line "nohup pkill rt -u cm2chou &"
         ssh -n cm2chou@$line "nohup a5/w > & ~/test1 &"
     fi

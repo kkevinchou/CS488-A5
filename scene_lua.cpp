@@ -476,6 +476,12 @@ int gr_render_cmd(lua_State* L)
     lua_pop(L, 1);
   }
 
+  double length = luaL_checknumber(L, 12);
+  double framesPerSec = luaL_checknumber(L, 13);
+
+  animLength = length;
+  fps = framesPerSec;
+
   a4_render(root->node, filename, width, height,
             eye, view, up, fov,
             ambient, lights, tweens);
@@ -749,7 +755,6 @@ bool run_lua(const std::string& filename)
 
   // Load some base library
   luaL_openlibs(L);
-
 
   GRLUA_DEBUG("Setting up our functions");
 

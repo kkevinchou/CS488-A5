@@ -180,7 +180,7 @@ void Coordinator::distributeWork(vector<int> &workerFds) {
 void Coordinator::dispatchWorkers() {
     int numFrames = animLength * fps + 1;
 
-    for (int k = 2; k < numFrames; k++) {
+    for (int k = 0; k < numFrames; k += 1) {
         cerr << "COORDINATOR - DISPATCHING WORKERS" << endl;
         int max_fd = 0;
         fd_set master_set;
