@@ -14,7 +14,7 @@ int reflectionNumDistributedRays = 1;
 
 double const EPSILON = 1.0e-8;
 bool printProgress = true;
-bool debug = true;
+bool debug = false;
 int areaLightSampleDimension = 10;
 
 // int debugX = 242;

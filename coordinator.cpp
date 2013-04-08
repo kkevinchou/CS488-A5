@@ -81,7 +81,6 @@ void Coordinator::waitForResults(fd_set &master_set, int max_fd) {
     int numPixels = width * height;
     int finishedPixels = 0;
 
-    bool printProgress = true;
     int percentage = 0;
 
     fd_set working_set;

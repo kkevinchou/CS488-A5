@@ -20,12 +20,30 @@ public:
 
     Colour getPixelColour(double x, double y) const {
         x++; // removes warning
-        return Colour(min((double)(y / height + 0.4), 8.0), 0, min((double)(y / height + 0.4), 8.0));
+
+        Colour startColour = Colour(0, convColour(188), convColour(209));
+        Colour endColour = Colour(convColour(254), convColour(249), convColour(240));
+
+        double sR = startColour.R();
+        double sB = startColour.G();
+        double sG = startColour.B();
+
+        double eR = endColour.R();
+        double eB = endColour.G();
+        double eG = endColour.B();
+
+        return Colour(sR + ((eR - sR) * (y / height)),
+            sG + ((eG - sG) * (y / height)),
+            sB + ((eB - sB) * (y / height)));
     }
 
 private:
     double width;
     double height;
+
+    double convColour(double v) const {
+        return v / 255;
+    }
 };
 
 #endif
